@@ -24,10 +24,10 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "rwque — Web Developer & Automation",
+  title: "Rwque",
   description: "Portfolio de rwque — desenvolvedor web e especialista em automações. Sites modernos, scraping e automações que funcionam.",
   openGraph: {
-    title: "rwque",
+    title: "Rwque",
     description: "Web Developer & Automation Specialist · Based in Brazil",
     type: "website",
   },
