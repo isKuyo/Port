@@ -476,45 +476,80 @@ export default function Home() {
         id="servicos"
         style={{
           borderTop: "1px solid var(--border)",
-          padding: "80px 32px",
+          padding: "96px 32px",
           maxWidth: 760,
           margin: "0 auto",
           scrollMarginTop: 52,
         }}
       >
         <Reveal>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", display: "block", marginBottom: 40 }}>
-            Serviços
-          </span>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 56 }}>
+            <h2 style={{
+              fontFamily: "var(--font-syne)",
+              fontSize: "clamp(28px, 4.5vw, 48px)",
+              fontWeight: 800,
+              letterSpacing: "-0.04em",
+              lineHeight: 1,
+              color: "var(--text)",
+            }}>
+              O que eu faço
+            </h2>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-3)" }}>
+              {SERVICES.length} serviços
+            </span>
+          </div>
         </Reveal>
 
         {SERVICES.map((svc, i) => (
-          <Reveal key={svc.n} delay={i * 0.08}>
+          <Reveal key={svc.n} delay={i * 0.1}>
             <div
               style={{
-                display: "flex",
-                gap: 24,
-                padding: "32px 0",
+                borderTop: i === 0 ? "1px solid var(--border)" : "none",
                 borderBottom: "1px solid var(--border)",
-                alignItems: "flex-start",
+                padding: "36px 0",
+                display: "grid",
+                gridTemplateColumns: "40px 1fr auto",
+                gap: "0 28px",
+                alignItems: "start",
               }}
             >
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)", flexShrink: 0, paddingTop: 4 }}>
+              {/* number */}
+              <span style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 10.5,
+                color: "var(--text-3)",
+                letterSpacing: "0.08em",
+                paddingTop: 6,
+              }}>
                 {svc.n}
               </span>
+
+              {/* content */}
               <div>
                 <h3 style={{
                   fontFamily: "var(--font-syne)",
-                  fontSize: 22,
-                  fontWeight: 700,
+                  fontSize: "clamp(20px, 2.8vw, 28px)",
+                  fontWeight: 800,
                   letterSpacing: "-0.03em",
                   color: "var(--text)",
-                  marginBottom: 10,
+                  marginBottom: 12,
+                  lineHeight: 1.1,
                 }}>
                   {svc.title}
                 </h3>
-                <p style={{ fontSize: 14.5, color: "var(--text-3)", lineHeight: 1.75 }}>{svc.desc}</p>
+                <p style={{ fontSize: 14.5, color: "var(--text-3)", lineHeight: 1.8, maxWidth: 480 }}>{svc.desc}</p>
               </div>
+
+              {/* arrow */}
+              <span style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 18,
+                color: "var(--text-3)",
+                paddingTop: 4,
+                opacity: 0.4,
+              }}>
+                ↗
+              </span>
             </div>
           </Reveal>
         ))}
