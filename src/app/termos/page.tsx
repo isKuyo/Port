@@ -95,17 +95,6 @@ export default function Termos() {
           ← Voltar ao início
         </Link>
         <div />
-          style={{
-            fontSize: 12,
-            color: "var(--text-3)",
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            transition: "color 0.15s",
-          }}
-        >
-          ← Voltar ao início
-        </Link>
       </nav>
 
       {/* Content */}
