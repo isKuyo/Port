@@ -684,27 +684,28 @@ export default function Home() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer
-        style={{
-          borderTop: "1px solid var(--border)",
-          padding: "20px 32px",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 32,
-          maxWidth: 760,
-          margin: "0 auto",
-        }}
-      >
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: 11.5, color: "var(--text-3)" }}>© 2026 rwque</span>
-        <a
-          href="/termos"
-          style={{ fontFamily: "var(--font-mono)", fontSize: 11.5, color: "var(--text-3)", transition: "color 0.15s" }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text)")}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text-3)")}
+      <footer style={{ borderTop: "1px solid var(--border)" }}>
+        <div
+          style={{
+            padding: "20px 32px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 32,
+            maxWidth: 760,
+            margin: "0 auto",
+          }}
         >
-          Termos de Serviço
-        </a>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 11.5, color: "var(--text-3)" }}>© 2026 rwque</span>
+          <a
+            href="/termos"
+            style={{ fontFamily: "var(--font-mono)", fontSize: 11.5, color: "var(--text-3)", transition: "color 0.15s" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text)")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text-3)")}
+          >
+            Termos de Serviço
+          </a>
+        </div>
       </footer>
     </>
   );

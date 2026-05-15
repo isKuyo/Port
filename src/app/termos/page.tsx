@@ -55,7 +55,7 @@ export default function Termos() {
       }}
     >
       {/* Nav */}
-      <header
+      <nav
         style={{
           position: "sticky",
           top: 0,
@@ -94,7 +94,7 @@ export default function Termos() {
         >
           ← Voltar ao início
         </Link>
-      </header>
+      </nav>
 
       {/* Content */}
       <div
@@ -193,6 +193,7 @@ export default function Termos() {
             fontSize: 13,
             color: "var(--text-3)",
             lineHeight: 1.75,
+            textAlign: "center",
           }}
         >
           Dúvidas sobre estes termos?{" "}
