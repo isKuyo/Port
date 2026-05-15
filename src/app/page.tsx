@@ -393,6 +393,10 @@ export default function Home() {
           maxWidth: 760,
           margin: "0 auto",
           scrollMarginTop: 52,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
         }}
       >
         <Reveal>
@@ -418,10 +422,10 @@ export default function Home() {
 
         <Reveal delay={0.1}>
           <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.85, maxWidth: 560, marginBottom: 48 }}>
-            Sou dev há 3~4 anos — comecei em jogos (Lua, C++, C#) e hoje foco em
+            Sou dev há 3 anos, comecei em jogos (Lua, C++, C#) e hoje foco em
             sites e lojas pra clientes reais. Trabalho com React, Next.js e Node.js no front e back,
             e Python quando preciso automatizar algo.
-            Entrego rápido, sem enrolação — orçamento por escopo, sem mensalidade.
+            Entrego rápido, sem enrolação, orçamento por escopo, sem mensalidade.
           </p>
         </Reveal>
 
@@ -429,9 +433,9 @@ export default function Home() {
         <Reveal delay={0.15}>
           <div style={{ display: "flex", gap: 0, borderTop: "1px solid var(--border)" }}>
             {[
-              { n: "3+",   l: "Anos de experiência" },
+              { n: "3",    l: "Anos de experiência" },
               { n: "20+",  l: "Projetos entregues" },
-              { n: "PT/EN", l: "Idiomas" },
+              { n: "\uD83C\uDDE7\uD83C\uDDF7 \uD83C\uDDFA\uD83C\uDDF8", l: "PT e EN" },
             ].map(({ n, l }, i) => (
               <div
                 key={l}
