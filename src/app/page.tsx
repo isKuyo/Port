@@ -454,7 +454,7 @@ export default function Home() {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/BrazilFlag.svg" alt="Brasil" width={36} height={26} draggable={false} style={{ objectFit: "cover", borderRadius: 4, pointerEvents: "none" }} />
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/UnitedStatesFlag.svg" alt="EUA" width={36} height={26} draggable={false} style={{ objectFit: "cover", borderRadius: 4, pointerEvents: "none" }} />
+                    <img src="/UnitedStatesFlag.png" alt="EUA" width={36} height={26} draggable={false} style={{ objectFit: "cover", borderRadius: 4, pointerEvents: "none" }} />
                   </div>
                 ) : (
                   <div style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(30px, 4.5vw, 42px)", fontWeight: 800, letterSpacing: "-0.05em", color: "var(--text)", lineHeight: 1 }}>
