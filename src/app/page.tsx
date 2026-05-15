@@ -1,621 +1,373 @@
 ﻿"use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
-import { useLanyard } from "@/hooks/useLanyard";
-import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import Link from "next/link";
 
-const STATUS_COLOR: Record<string, string> = {
-  online: "#4ade80",
-  idle: "#fbbf24",
-  dnd: "#4ade80",
-  offline: "#52525b",
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  online: "online",
-  idle: "idle",
-  dnd: "online",
-  offline: "offline",
-};
-
-const SKILLS = [
-  { name: "Lua / Luau",  pct: 92, icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/lua/lua-original.svg" },
-  { name: "JavaScript", pct: 80, icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" },
-  { name: "HTML / CSS", pct: 78, icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" },
-  { name: "C++",        pct: 60, icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cplusplus/cplusplus-original.svg" },
-  { name: "C#",         pct: 55, icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/csharp/csharp-original.svg" },
+const MARQUEE_ITEMS = [
+  "React", "Next.js", "TypeScript", "Node.js",
+  "Playwright", "Web Scraping", "Tailwind CSS",
+  "Automações", "APIs REST", "Python",
+  "Bots", "UI/UX",
 ];
 
-const PROJECTS = [
-  {
-    name: "Projects",
-    description: "Roblox games I've contributed on.",
-    tags: ["Roblox", "Luau"],
-    url: "/projects",
-  },
-  {
-    name: "Works",
-    description: "My portfolio, projects and demos.",
-    tags: ["Showcases"],
-    url: "https://discord.gg/Q4qZh9qpC3",
-  },
-];
-
-function formatTime(ms: number) {
-  const s = Math.floor(ms / 1000);
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-}
-
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] } },
-};
-
-const container = {
+const stagger = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
+  show: { transition: { staggerChildren: 0.09, delayChildren: 0.1 } },
 };
 
-const DEFAULT_ACCENT = "#818cf8";
-
-function hexToRgba(hex: string, alpha: number): string {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
-
-function getMostVibrantColor(url: string): Promise<string> {
-  return new Promise((resolve) => {
-    const img = new window.Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = 64; canvas.height = 64;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) { resolve(DEFAULT_ACCENT); return; }
-      ctx.drawImage(img, 0, 0, 64, 64);
-      const { data } = ctx.getImageData(0, 0, 64, 64);
-      let best = { r: 129, g: 140, b: 248 };
-      let bestScore = 0;
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
-        if (a < 128) continue;
-        const rn = r / 255, gn = g / 255, bn = b / 255;
-        const max = Math.max(rn, gn, bn), min = Math.min(rn, gn, bn);
-        const l = (max + min) / 2;
-        const s = max === min ? 0 : l > 0.5 ? (max - min) / (2 - max - min) : (max - min) / (max + min);
-        const score = s * (1 - Math.abs(l - 0.5) * 1.5);
-        if (score > bestScore) { bestScore = score; best = { r, g, b }; }
-      }
-      const h = (v: number) => v.toString(16).padStart(2, "0");
-      resolve(`#${h(best.r)}${h(best.g)}${h(best.b)}`);
-    };
-    img.onerror = () => resolve(DEFAULT_ACCENT);
-    img.src = url;
-  });
-}
+const fadeUp = {
+  hidden: { opacity: 0, y: 22 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] } },
+};
 
 export default function Home() {
-  const { data } = useLanyard();
-  const [progress, setProgress] = useState(0);
-  const [accent, setAccent] = useState(DEFAULT_ACCENT);
-  const [entered, setEntered] = useState(false);
-
-  useEffect(() => {
-    if (sessionStorage.getItem("entered") === "1") setEntered(true);
-  }, []);
-  const [views, setViews] = useState<number | null>(null);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const status = data?.discord_status ?? "offline";
-  const statusColor = STATUS_COLOR[status] ?? STATUS_COLOR.offline;
-
-  const avatarUrl = data?.discord_user.avatar
-    ? `https://cdn.discordapp.com/avatars/${data.discord_user.id}/${data.discord_user.avatar}.${
-        data.discord_user.avatar.startsWith("a_") ? "gif" : "webp"
-      }?size=256`
-    : "https://cdn.discordapp.com/embed/avatars/0.png";
-
-  const ACCENT = accent;
-  const ACCENT_DIM = hexToRgba(accent, 0.12);
-  const ACCENT_BORDER = hexToRgba(accent, 0.25);
-  const ACCENT_FAINT = hexToRgba(accent, 0.05);
-
-  const spotify = data?.spotify;
-  const isListening = !!data?.listening_to_spotify && !!spotify;
-
-  useEffect(() => {
-    getMostVibrantColor(avatarUrl).then((color) => {
-      setAccent(color);
-      sessionStorage.setItem("accent", color);
-    });
-  }, [avatarUrl]);
-
-  useEffect(() => {
-    fetch("/api/views", { method: "POST" })
-      .then((r) => r.json())
-      .then((d) => setViews(d.count))
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    if (!isListening || !spotify) {
-      setProgress(0);
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      return;
-    }
-    const update = () => {
-      const elapsed = Date.now() - spotify.timestamps.start;
-      const total = spotify.timestamps.end - spotify.timestamps.start;
-      setProgress(Math.min((elapsed / total) * 100, 100));
-    };
-    update();
-    intervalRef.current = setInterval(update, 500);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [isListening, spotify]);
-
   return (
-    <>
-    <AnimatePresence>
-      {!entered && (
-        <motion.div
-          key="splash"
-          initial={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.7, ease: "easeInOut" }}
-          onClick={() => { sessionStorage.setItem("entered", "1"); setEntered(true); }}
-          style={{
-            position: "fixed", inset: 0, zIndex: 100,
-            background: "#080808",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer",
-          }}
-        >
-          <motion.p
-            animate={{ opacity: [0.25, 0.9, 0.25] }}
-            transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
-            style={{ color: "#d4d4d8", fontSize: 16, letterSpacing: "0.25em", fontWeight: 500, userSelect: "none" }}
-          >
-            click to enter...
-          </motion.p>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <div style={{ minHeight: "calc(100dvh - var(--nav-height))", display: "flex", flexDirection: "column" }}>
 
-    {views !== null && (
-      <div style={{
-        position: "fixed", top: 22, left: 22, zIndex: 50,
-        display: "flex", alignItems: "center", gap: 7,
-        color: "#e4e4e7", fontSize: 14, fontWeight: 500,
-        pointerEvents: "none",
-      }}>
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-          <circle cx="12" cy="12" r="3" />
-        </svg>
-        <span>{views.toLocaleString()}</span>
-      </div>
-    )}
-
-    <main style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "5rem 1.5rem" }}>
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="w-full max-w-[480px] flex flex-col gap-9"
+      {/* ─── HERO ─── */}
+      <div
+        style={{
+          flex: 1,
+          maxWidth: 1200,
+          margin: "0 auto",
+          width: "100%",
+          padding: "0 32px",
+          display: "flex",
+          alignItems: "center",
+          gap: 72,
+        }}
       >
+        {/* Left */}
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          animate="show"
+          style={{ flex: 1, minWidth: 0, paddingTop: 20, paddingBottom: 20 }}
+        >
+          {/* Label */}
+          <motion.div variants={fadeUp} className="section-label" style={{ marginBottom: 28 }}>
+            Portfolio · 2026
+          </motion.div>
 
-        {/* ── HEADER ── */}
-        <motion.div variants={item} className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-4">
-            {/* Avatar with spinning gradient ring */}
-            <div style={{ position: "relative", flexShrink: 0, width: 64, height: 64 }}>
-              <div style={{
-                position: "absolute", inset: 0,
-                borderRadius: "50%",
-                padding: 2,
-                background: `conic-gradient(from 0deg, ${ACCENT}, rgba(255,255,255,0.55) 90deg, ${ACCENT} 180deg, rgba(255,255,255,0.2) 270deg, ${ACCENT})`,
-                transition: "background 0.6s ease",
-                animation: "spin-ring 4s linear infinite",
-              }}>
-                <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: "#080808" }} />
-              </div>
-              <div style={{
-                position: "absolute", inset: 3,
-                borderRadius: "50%", overflow: "hidden",
-                background: "#141414",
-              }}>
-                {data && <Image src={avatarUrl} alt="rwque" fill priority sizes="58px" className="object-cover" unoptimized />}
-              </div>
-            </div>
-
-            <div>
-              <h1 style={{
-                fontSize: 22,
-                fontWeight: 700,
-                letterSpacing: "-0.03em",
-                lineHeight: 1.1,
-                backgroundImage: `linear-gradient(135deg, #ffffff 0%, ${ACCENT} 100%)`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}>
-                rwque
-              </h1>
-              <p style={{
-                fontSize: 13,
-                marginTop: 4,
-                lineHeight: 1.4,
-                fontWeight: 600,
-                background: "linear-gradient(to right, #6b6b6b 0, #ffffff 20%, #6b6b6b 40%)",
-                backgroundSize: "220px auto",
-                backgroundPosition: "0",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                animation: "shine 5s infinite linear",
-                display: "inline-block",
-              }}>
-                Fullstack · Addicted to code
-              </p>
-              <p style={{
-                fontSize: 11,
-                marginTop: 5,
-                lineHeight: 1.4,
-                fontWeight: 500,
-                backgroundImage: "linear-gradient(90deg, #22c55e 0%, #facc15 50%, #22c55e 100%)",
-                backgroundSize: "200% 100%",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                animation: "brazil-flow 2s linear infinite",
-                display: "block",
-              }}>
-                Brazil
-              </p>
-            </div>
-          </div>
-
-          {/* Status indicator */}
-          <div
-            className="flex items-center gap-2 flex-shrink-0 mt-1"
+          {/* Name */}
+          <motion.h1
+            variants={fadeUp}
             style={{
-              padding: "5px 10px",
-              borderRadius: 20,
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.07)",
+              fontFamily: "var(--font-syne)",
+              fontSize: "clamp(72px, 11vw, 148px)",
+              fontWeight: 800,
+              lineHeight: 0.88,
+              letterSpacing: "-0.045em",
+              color: "var(--text)",
+              marginBottom: 28,
             }}
           >
-            <span className="relative flex" style={{ width: 7, height: 7 }}>
-              {status !== "offline" && (
-                <span className="absolute inset-0 rounded-full" style={{
-                  backgroundColor: statusColor,
-                  animation: "ping 2s cubic-bezier(0,0,0.2,1) infinite",
-                  opacity: 0.5,
-                }} />
-              )}
-              <span className="relative inline-flex w-full h-full rounded-full" style={{ backgroundColor: statusColor }} />
-            </span>
-            <span style={{ fontSize: 11, color: "#71717a", lineHeight: 1, whiteSpace: "nowrap" }}>
-              {STATUS_LABEL[status]}
-            </span>
-          </div>
-        </motion.div>
+            RWQUE
+          </motion.h1>
 
-        {/* ── BIO ── */}
-        <motion.div variants={item}>
-          <p style={{ fontSize: 13, color: "#a1a1aa", lineHeight: 1.8 }}>
-            Developer focused on{" "}
-            <span style={{ color: "#e4e4e7", fontWeight: 500 }}>Roblox</span>.
-            {" "}Building gameplay systems and mechanics, focusing on performance and how things feel in-game. I like keeping my code clean and making sure everything works smoothly.
-          </p>
-        </motion.div>
+          {/* Tagline */}
+          <motion.p
+            variants={fadeUp}
+            style={{
+              fontSize: "clamp(15px, 2vw, 20px)",
+              color: "var(--text-muted)",
+              lineHeight: 1.55,
+              fontWeight: 400,
+              maxWidth: 460,
+              marginBottom: 12,
+            }}
+          >
+            Desenvolvimento web &{" "}
+            <span style={{ color: "var(--text)", fontWeight: 600 }}>automações</span> —
+            entrego projetos que funcionam e causam impacto.
+          </motion.p>
 
-        {/* ── SOCIALS ── */}
-        <motion.div variants={item} className="flex items-center justify-center gap-3">
-          {[
-            {
-              href: "https://discord.com/users/1088946006663630969",
-              label: "Discord",
-              hoverColor: "#5865F2",
-              hoverBg: "rgba(88,101,242,0.12)",
-              hoverBorder: "rgba(88,101,242,0.3)",
-              icon: (
-                <svg width="16" height="16" viewBox="0 0 127.14 96.36" fill="currentColor">
-                  <path d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29.11 0A72.37 72.37 0 0 0 45.64 0a105.89 105.89 0 0 0-26.25 8.09C2.79 32.65-1.71 56.6.54 80.21a105.73 105.73 0 0 0 32.17 16.15 77.7 77.7 0 0 0 6.89-11.11 68.42 68.42 0 0 1-10.85-5.18c.91-.66 1.8-1.34 2.66-2a75.57 75.57 0 0 0 64.32 0c.87.71 1.76 1.39 2.66 2a68.68 68.68 0 0 1-10.87 5.19 77 77 0 0 0 6.89 11.1 105.25 105.25 0 0 0 32.19-16.14c2.64-27.38-4.51-51.11-18.9-72.15ZM42.45 65.69C36.18 65.69 31 60 31 53s5-12.74 11.43-12.74S54 46 53.89 53s-5.05 12.69-11.44 12.69Zm42.24 0C78.41 65.69 73.25 60 73.25 53s5-12.74 11.44-12.74S96.23 46 96.12 53s-5.04 12.69-11.43 12.69Z" />
-                </svg>
-              ),
-            },
-            {
-              href: "https://tiktok.com/@rwquev",
-              label: "TikTok",
-              hoverColor: "#ffffff",
-              hoverBg: "rgba(255,255,255,0.1)",
-              hoverBorder: "rgba(255,255,255,0.25)",
-              icon: (
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.19 8.19 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z" />
-                </svg>
-              ),
-            },
-          ].map(({ href, label, icon, hoverColor, hoverBg, hoverBorder }) => (
-            <a
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2"
+          {/* Location / status row */}
+          <motion.div
+            variants={fadeUp}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+              marginBottom: 44,
+              flexWrap: "wrap",
+            }}
+          >
+            <span
               style={{
-                padding: "9px 20px",
-                borderRadius: 10,
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.09)",
-                color: "#71717a",
-                fontSize: 13,
-                fontWeight: 500,
+                fontFamily: "var(--font-mono)",
+                fontSize: 12,
+                color: "var(--text-faint)",
+                letterSpacing: "0.04em",
+              }}
+            >
+              🇧🇷 Brasil
+            </span>
+            <span style={{ width: 3, height: 3, borderRadius: "50%", background: "var(--text-faint)", display: "inline-block" }} />
+            <span
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                fontFamily: "var(--font-mono)",
+                fontSize: 12,
+                color: "#4ade80",
+              }}
+            >
+              <span
+                style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: "50%",
+                  background: "#4ade80",
+                  animation: "pulse-glow 2s ease-in-out infinite",
+                  display: "inline-block",
+                }}
+              />
+              Disponível para projetos
+            </span>
+          </motion.div>
+
+          {/* CTAs */}
+          <motion.div variants={fadeUp} style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <Link
+              href="/servicos"
+              style={{
+                padding: "13px 30px",
+                background: "var(--accent)",
+                color: "#080808",
+                borderRadius: 9,
+                fontSize: 14,
+                fontWeight: 700,
                 textDecoration: "none",
-                transition: "all 0.2s ease",
-                letterSpacing: "-0.01em",
+                letterSpacing: "-0.015em",
+                transition: "opacity 0.15s ease, transform 0.15s ease",
               }}
               onMouseEnter={(e) => {
                 const el = e.currentTarget as HTMLElement;
-                el.style.color = hoverColor;
-                el.style.borderColor = hoverBorder;
-                el.style.background = hoverBg;
+                el.style.opacity = "0.88";
                 el.style.transform = "translateY(-1px)";
               }}
               onMouseLeave={(e) => {
                 const el = e.currentTarget as HTMLElement;
-                el.style.color = "#71717a";
-                el.style.borderColor = "rgba(255,255,255,0.09)";
-                el.style.background = "rgba(255,255,255,0.04)";
+                el.style.opacity = "1";
                 el.style.transform = "translateY(0)";
               }}
             >
-              {icon}
-              {label}
-            </a>
-          ))}
+              Ver Serviços
+            </Link>
+            <Link
+              href="/contato"
+              style={{
+                padding: "13px 30px",
+                background: "transparent",
+                color: "var(--text)",
+                borderRadius: 9,
+                fontSize: 14,
+                fontWeight: 600,
+                textDecoration: "none",
+                border: "1px solid var(--border-strong)",
+                letterSpacing: "-0.015em",
+                transition: "border-color 0.2s ease, transform 0.15s ease",
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLElement;
+                el.style.borderColor = "rgba(var(--accent-rgb), 0.4)";
+                el.style.transform = "translateY(-1px)";
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLElement;
+                el.style.borderColor = "var(--border-strong)";
+                el.style.transform = "translateY(0)";
+              }}
+            >
+              Entrar em Contato
+            </Link>
+          </motion.div>
         </motion.div>
 
-        {/* ── DIVIDER ── */}
-        <motion.div variants={item} style={{ height: 1, background: "rgba(255,255,255,0.07)" }} />
-
-        {/* ── SKILLS ── */}
-        <motion.div variants={item} className="flex flex-col gap-3">
-          <span style={{
-            fontSize: 10, fontWeight: 600, color: "#52525b",
-            letterSpacing: "0.1em", textTransform: "uppercase",
-          }}>
-            Skills
-          </span>
-          <div className="flex flex-col gap-3">
-            {SKILLS.map(({ name, pct, icon }) => (
-              <div key={name}>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={icon}
-                      alt={name}
-                      width={16}
-                      height={16}
-                      style={{ flexShrink: 0 }}
-                    />
-                    <span style={{ fontSize: 12, color: "#a1a1aa", fontWeight: 400 }}>{name}</span>
-                  </div>
-                  <span style={{ fontSize: 11, color: "#52525b", fontFamily: "monospace" }}>{pct}%</span>
-                </div>
-                <div style={{
-                  height: 3, borderRadius: 9999,
-                  background: "rgba(255,255,255,0.06)",
-                  overflow: "hidden",
-                }}>
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${pct}%` }}
-                    transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                    style={{
-                      height: "100%",
-                      borderRadius: 9999,
-                      background: `linear-gradient(90deg, ${ACCENT}, ${hexToRgba(ACCENT, 0.5)})`,
-                      boxShadow: `0 0 8px ${hexToRgba(ACCENT, 0.4)}`,
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
+        {/* Right: code snippet + stats */}
+        <motion.div
+          initial={{ opacity: 0, x: 24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          style={{
+            flexShrink: 0,
+            width: "clamp(280px, 30vw, 340px)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 14,
+          }}
+          className="hidden md:flex"
+        >
+          {/* Code block */}
+          <div
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              borderRadius: 14,
+              padding: "20px 22px",
+              fontFamily: "var(--font-mono)",
+              fontSize: 12.5,
+              lineHeight: 2,
+            }}
+          >
+            <div style={{ display: "flex", gap: 6, marginBottom: 16, alignItems: "center" }}>
+              <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ff5f56" }} />
+              <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ffbd2e" }} />
+              <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#27c93f" }} />
+              <span style={{ marginLeft: 6, color: "var(--text-faint)", fontSize: 11 }}>rwque.ts</span>
+            </div>
+            <div>
+              <span style={{ color: "#737373" }}>{"// about me"}</span>
+              <br />
+              <span style={{ color: "#c792ea" }}>const </span>
+              <span style={{ color: "var(--text)" }}>rwque </span>
+              <span style={{ color: "#89ddff" }}>= </span>
+              <span style={{ color: "#c792ea" }}>{"{"}  </span>
+              <br />
+              <span style={{ paddingLeft: 18, color: "#82aaff" }}>stack</span>
+              <span style={{ color: "var(--text-muted)" }}>: </span>
+              <span style={{ color: "var(--accent)" }}>"React / Next.js"</span>
+              <span style={{ color: "var(--text-muted)" }}>,</span>
+              <br />
+              <span style={{ paddingLeft: 18, color: "#82aaff" }}>foco</span>
+              <span style={{ color: "var(--text-muted)" }}>: </span>
+              <span style={{ color: "var(--accent)" }}>"Web & Automação"</span>
+              <span style={{ color: "var(--text-muted)" }}>,</span>
+              <br />
+              <span style={{ paddingLeft: 18, color: "#82aaff" }}>local</span>
+              <span style={{ color: "var(--text-muted)" }}>: </span>
+              <span style={{ color: "var(--accent)" }}>"Brasil 🇧🇷"</span>
+              <span style={{ color: "var(--text-muted)" }}>,</span>
+              <br />
+              <span style={{ color: "#c792ea" }}>{"}"}</span>
+              <span style={{ color: "var(--text-muted)" }}>;</span>
+            </div>
           </div>
-        </motion.div>
 
-        {/* ── DIVIDER ── */}
-        <motion.div variants={item} style={{ height: 1, background: "rgba(255,255,255,0.07)" }} />
-
-        {/* ── PROJECTS ── */}
-        <motion.div variants={item} className="flex flex-col gap-3">
-          <span style={{
-            fontSize: 10, fontWeight: 600, color: "#52525b",
-            letterSpacing: "0.1em", textTransform: "uppercase",
-          }}>
-            More
-          </span>
-          <div className="flex flex-col gap-1">
-            {PROJECTS.map((project, i) => (
-              <a
-                key={project.name}
-                href={project.url}
-                target={project.url.startsWith("/") ? "_self" : "_blank"}
-                rel={project.url.startsWith("/") ? undefined : "noopener noreferrer"}
-                className="group flex items-center justify-between gap-4"
+          {/* Stats 2x2 */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {[
+              { value: "3+", label: "Anos de exp." },
+              { value: "BR", label: "Localização" },
+              { value: "24h", label: "Tempo de resposta" },
+              { value: "∞", label: "Café consumido" },
+            ].map(({ value, label }) => (
+              <div
+                key={label}
                 style={{
-                  padding: "14px 14px",
-                  margin: "0 -14px",
+                  background: "var(--surface)",
+                  border: "1px solid var(--border)",
                   borderRadius: 10,
-                  textDecoration: "none",
-                  transition: "background 0.2s ease",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLElement;
-                  el.style.background = ACCENT_FAINT;
-                  const bar = el.querySelector(".accent-bar") as HTMLElement;
-                  if (bar) bar.style.opacity = "1";
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLElement;
-                  el.style.background = "transparent";
-                  const bar = el.querySelector(".accent-bar") as HTMLElement;
-                  if (bar) bar.style.opacity = "0";
+                  padding: "15px 16px",
                 }}
               >
                 <div
-                  className="accent-bar"
                   style={{
-                    position: "absolute", left: 0, top: "20%", bottom: "20%",
-                    width: 2, borderRadius: 9999,
-                    background: ACCENT,
-                    opacity: 0, transition: "opacity 0.2s ease",
+                    fontFamily: "var(--font-syne)",
+                    fontSize: 26,
+                    fontWeight: 800,
+                    color: "var(--text)",
+                    letterSpacing: "-0.04em",
+                    lineHeight: 1,
+                    marginBottom: 5,
                   }}
-                />
-                <div className="flex items-start gap-4 min-w-0">
-                  <span style={{
-                    fontSize: 11, fontFamily: "monospace",
-                    color: "#3f3f46", flexShrink: 0, marginTop: 2,
-                  }}>
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div className="min-w-0">
-                    <p style={{ fontSize: 14, fontWeight: 500, color: "#e4e4e7", lineHeight: 1.3, marginBottom: 4 }}>
-                      {project.name}
-                    </p>
-                    <p style={{ fontSize: 12, color: "#71717a", lineHeight: 1.6 }}>
-                      {project.description}
-                    </p>
-                    <div className="flex gap-1.5 mt-2 flex-wrap">
-                      {project.tags.map((t) => (
-                        <span key={t} style={{
-                          fontSize: 10, padding: "2px 7px",
-                          borderRadius: 4,
-                          background: ACCENT_DIM,
-                          border: `1px solid ${ACCENT_BORDER}`,
-                          color: ACCENT,
-                          fontWeight: 500,
-                        }}>
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <svg
-                  width="13" height="13" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                  className="flex-shrink-0 opacity-0 group-hover:opacity-100"
-                  style={{ color: ACCENT, transition: "opacity 0.2s ease" }}
                 >
-                  <line x1="7" y1="17" x2="17" y2="7" />
-                  <polyline points="7 7 17 7 17 17" />
-                </svg>
-              </a>
+                  {value}
+                </div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>{label}</div>
+              </div>
             ))}
           </div>
         </motion.div>
+      </div>
 
-        {/* ── NOW PLAYING ── */}
-        <AnimatePresence>
-          {isListening && spotify && (
-            <motion.div
-              key="spotify"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.35, ease: "easeInOut" }}
-              style={{ overflow: "hidden" }}
+      {/* ─── MARQUEE ─── */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+        style={{
+          borderTop: "1px solid var(--border)",
+          overflow: "hidden",
+          padding: "14px 0",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            width: "max-content",
+            animation: "marquee 28s linear infinite",
+            gap: 0,
+          }}
+        >
+          {[0, 1].map((idx) => (
+            <div
+              key={idx}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0,
+                paddingRight: 0,
+              }}
             >
-              <div style={{ height: 1, background: "rgba(255,255,255,0.07)", marginBottom: 36 }} />
-              <div className="flex flex-col gap-3">
-                <span style={{
-                  fontSize: 10, fontWeight: 600, color: "#52525b",
-                  letterSpacing: "0.1em", textTransform: "uppercase",
-                }}>
-                  Now Playing
-                </span>
-                <div
-                  className="flex items-center gap-4"
+              {MARQUEE_ITEMS.map((item) => (
+                <span
+                  key={`${idx}-${item}`}
                   style={{
-                    padding: "12px 14px",
-                    borderRadius: 12,
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.08)",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 12,
+                    color: "var(--text-faint)",
+                    whiteSpace: "nowrap",
+                    padding: "0 28px",
+                    letterSpacing: "0.03em",
                   }}
                 >
-                  <div style={{
-                    position: "relative", width: 48, height: 48,
-                    borderRadius: 8, overflow: "hidden", flexShrink: 0,
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
-                  }}>
-                    <Image src={spotify.album_art_url} alt={spotify.album} fill sizes="48px" className="object-cover" unoptimized />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="#1db954">
-                        <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
-                      </svg>
-                      <span style={{ fontSize: 11, color: "#4ade80", fontWeight: 500 }}>listening now</span>
-                    </div>
-                    <p style={{
-                      fontSize: 13, fontWeight: 600, color: "#f4f4f5",
-                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                    }}>
-                      {spotify.song}
-                    </p>
-                    <p style={{
-                      fontSize: 12, color: "#71717a", marginTop: 1,
-                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                    }}>
-                      {spotify.artist}
-                    </p>
-                    <div className="flex items-center gap-2 mt-2.5">
-                      <span style={{ fontSize: 10, fontFamily: "monospace", color: "#52525b", flexShrink: 0 }}>
-                        {formatTime(Date.now() - spotify.timestamps.start)}
-                      </span>
-                      <div style={{
-                        flex: 1, height: 2, background: "rgba(255,255,255,0.08)",
-                        borderRadius: 9999, overflow: "hidden",
-                      }}>
-                        <div style={{
-                          height: "100%", width: `${progress}%`,
-                          background: "#1db954", borderRadius: 9999,
-                          transition: "width 0.5s linear",
-                          boxShadow: "0 0 8px rgba(29,185,84,0.5)",
-                        }} />
-                      </div>
-                      <span style={{ fontSize: 10, fontFamily: "monospace", color: "#52525b", flexShrink: 0 }}>
-                        {formatTime(spotify.timestamps.end - spotify.timestamps.start)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* ── FOOTER ── */}
-        <motion.div
-          variants={item}
-          style={{ paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.07)" }}
-        >
-          <p style={{ fontSize: 11, color: "#3f3f46" }}>
-            rwque · {new Date().getFullYear()}
-          </p>
-        </motion.div>
-
+                  <span style={{ color: "var(--accent)", marginRight: 10 }}>↗</span>
+                  {item}
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
       </motion.div>
-    </main>
-    </>
+
+      {/* ─── FOOTER BAR ─── */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.7 }}
+        style={{
+          borderTop: "1px solid var(--border)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          maxWidth: 1200,
+          width: "100%",
+          margin: "0 auto",
+          padding: "14px 32px",
+        }}
+      >
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-faint)", letterSpacing: "0.04em" }}>
+          © 2026 rwque
+        </span>
+        <a
+          href="mailto:contato@rwque.lol"
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: 11,
+            color: "var(--text-faint)",
+            textDecoration: "none",
+            letterSpacing: "0.04em",
+            transition: "color 0.2s",
+          }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--accent)")}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text-faint)")}
+        >
+          contato@rwque.lol
+        </a>
+      </motion.div>
+    </div>
   );
 }
