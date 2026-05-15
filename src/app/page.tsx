@@ -38,58 +38,58 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 }
 
 const LANG_ICONS: Record<string, ReturnType<typeof Image>> = {
-  JavaScript: <Image src={jsIcon} alt="JavaScript" width={70} height={70} style={{ objectFit: "contain" }} />,
+  JavaScript: <Image src={jsIcon} alt="JavaScript" width={70} height={70} style={{ objectFit: "contain", borderRadius: 14 }} />,
   TypeScript: <Image src={tsIcon} alt="TypeScript" width={70} height={70} style={{ objectFit: "contain" }} />,
   Python:     <Image src={pyIcon} alt="Python"     width={70} height={70} style={{ objectFit: "contain" }} />,
-  React:      <Image src={reactIcon} alt="React"   width={70} height={70} style={{ objectFit: "contain" }} />,
+  React:      <Image src={reactIcon} alt="React"   width={70} height={70} style={{ objectFit: "contain", borderRadius: 14 }} />,
   Lua:        <Image src={luaIcon} alt="Lua"        width={70} height={70} style={{ objectFit: "contain" }} />,
 } as unknown as Record<string, React.ReactNode>;
 
 /* ── floating card data ── */
 const CARDS = [
   {
+    // top-left → converge: move right + down
     w: 110, h: 110,
     top: "10%", left: "5%",
     rotate: -8,
-    bg: "none",
     factorX: -0.028, factorY: -0.018,
-    scrollFactor: -120,
+    scrollX: 55, scrollY: 35,
     lang: "JavaScript",
   },
   {
+    // top-right → converge: move left + down
     w: 110, h: 110,
     top: "6%", right: "7%",
     rotate: 7,
-    bg: "none",
     factorX: 0.022, factorY: -0.025,
-    scrollFactor: -80,
+    scrollX: -55, scrollY: 35,
     lang: "TypeScript",
   },
   {
+    // mid-left → converge: move right
     w: 100, h: 100,
     top: "52%", left: "3%",
     rotate: -5,
-    bg: "none",
     factorX: -0.018, factorY: 0.022,
-    scrollFactor: 60,
+    scrollX: 45, scrollY: 0,
     lang: "Python",
   },
   {
+    // mid-right → converge: move left
     w: 110, h: 110,
     top: "44%", right: "4%",
     rotate: 5,
-    bg: "none",
     factorX: 0.032, factorY: 0.015,
-    scrollFactor: 100,
+    scrollX: -45, scrollY: 0,
     lang: "React",
   },
   {
+    // bottom-left → converge: move right + up
     w: 100, h: 100,
     bottom: "10%", left: "9%",
     rotate: 11,
-    bg: "none",
     factorX: -0.015, factorY: 0.03,
-    scrollFactor: 140,
+    scrollX: 40, scrollY: -30,
     lang: "Lua",
   },
 ];
@@ -106,16 +106,22 @@ function FloatingCard({
   my: MotionValue<number>;
   scrollY: MotionValue<number>;
 }) {
-  const springX = useSpring(
-    useTransform(mx, (v) => v * card.factorX * 600),
-    { stiffness: 60, damping: 18 }
+  const mouseXRaw = useTransform(mx, (v) => v * card.factorX * 600);
+  const mouseYRaw = useTransform(my, (v) => v * card.factorY * 600);
+  const scrollXRaw = useTransform(scrollY, [0, 600], [0, card.scrollX]);
+  const scrollYRaw = useTransform(scrollY, [0, 600], [0, card.scrollY]);
+
+  const combinedX = useTransform(
+    [mouseXRaw, scrollXRaw] as MotionValue<number>[],
+    ([m, s]) => (m as number) + (s as number)
   );
-  const mouseY = useSpring(
-    useTransform(my, (v) => v * card.factorY * 600),
-    { stiffness: 60, damping: 18 }
+  const combinedY = useTransform(
+    [mouseYRaw, scrollYRaw] as MotionValue<number>[],
+    ([m, s]) => (m as number) + (s as number)
   );
-  const scrollParallax = useTransform(scrollY, [0, 800], [0, card.scrollFactor]);
-  const combinedY = useTransform([mouseY, scrollParallax] as MotionValue<number>[], ([m, s]) => (m as number) + (s as number));
+
+  const springX = useSpring(combinedX, { stiffness: 55, damping: 20 });
+  const springY = useSpring(combinedY, { stiffness: 55, damping: 20 });
 
   const pos: React.CSSProperties = {
     position: "absolute",
@@ -135,13 +141,12 @@ function FloatingCard({
       style={{
         ...pos,
         x: springX,
-        y: combinedY,
+        y: springY,
         rotate: card.rotate,
         userSelect: "none",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.18))",
       }}
     >
       {LANG_ICONS[card.lang]}
