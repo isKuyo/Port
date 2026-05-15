@@ -60,9 +60,9 @@ export default function Termos() {
           position: "sticky",
           top: 0,
           zIndex: 50,
-          display: "flex",
+          display: "grid",
+          gridTemplateColumns: "1fr auto 1fr",
           alignItems: "center",
-          justifyContent: "space-between",
           padding: "0 32px",
           height: 52,
           background: "var(--bg)",
@@ -83,6 +83,18 @@ export default function Termos() {
         </Link>
         <Link
           href="/"
+          style={{
+            fontSize: 12,
+            color: "var(--text-3)",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            transition: "color 0.15s",
+          }}
+        >
+          ← Voltar ao início
+        </Link>
+        <div />
           style={{
             fontSize: 12,
             color: "var(--text-3)",
