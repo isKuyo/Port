@@ -52,7 +52,7 @@ const CARDS = [
     w: 110, h: 110,
     top: "10%", left: "5%",
     rotate: -8,
-    factorX: -0.028, factorY: -0.018,
+    factorX: -0.056, factorY: -0.036,
     scrollX: 55, scrollY: 35,
     lang: "JavaScript",
   },
@@ -61,7 +61,7 @@ const CARDS = [
     w: 110, h: 110,
     top: "6%", right: "7%",
     rotate: 7,
-    factorX: 0.022, factorY: -0.025,
+    factorX: 0.044, factorY: -0.05,
     scrollX: -55, scrollY: 35,
     lang: "TypeScript",
   },
@@ -70,27 +70,30 @@ const CARDS = [
     w: 100, h: 100,
     top: "52%", left: "3%",
     rotate: -5,
-    factorX: -0.018, factorY: 0.022,
+    factorX: -0.036, factorY: 0.044,
     scrollX: 45, scrollY: 0,
     lang: "Python",
+    mid: true,
   },
   {
     // mid-right → converge: move left
     w: 110, h: 110,
     top: "44%", right: "4%",
     rotate: 5,
-    factorX: 0.032, factorY: 0.015,
+    factorX: 0.064, factorY: 0.03,
     scrollX: -45, scrollY: 0,
     lang: "React",
+    mid: true,
   },
   {
     // bottom-left → converge: move right + up
     w: 100, h: 100,
     bottom: "10%", left: "9%",
     rotate: 11,
-    factorX: -0.015, factorY: 0.03,
+    factorX: -0.03, factorY: 0.06,
     scrollX: 40, scrollY: -30,
     lang: "Lua",
+    mid: false,
   },
 ];
 
@@ -148,6 +151,7 @@ function FloatingCard({
         alignItems: "center",
         justifyContent: "center",
       }}
+      className={card.mid ? "floating-card-mid" : undefined}
     >
       {LANG_ICONS[card.lang]}
     </motion.div>
@@ -226,21 +230,21 @@ export default function Home() {
           rwque
         </span>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+        <div className="nav-links" style={{ display: "flex", alignItems: "center", gap: 28 }}>
           {[
-            { label: "Sobre", href: "#sobre" },
-            { label: "Serviços", href: "#servicos" },
-            { label: "Contato", href: "#contato" },
-          ].map(({ label, href }) => (
-            <a
-              key={href}
-              href={href}
-              style={{ fontSize: 13, color: "var(--text-3)", transition: "color 0.15s" }}
+            { label: "Sobre", id: "sobre" },
+            { label: "Serviços", id: "servicos" },
+            { label: "Contato", id: "contato" },
+          ].map(({ label, id }) => (
+            <button
+              key={id}
+              onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })}
+              style={{ fontSize: 13, color: "var(--text-3)", transition: "color 0.15s", background: "none", border: "none", cursor: "pointer", padding: 0 }}
               onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text)")}
               onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text-3)")}
             >
               {label}
-            </a>
+            </button>
           ))}
         </div>
         <div />
@@ -261,9 +265,11 @@ export default function Home() {
         }}
       >
         {/* floating cards */}
-        {CARDS.map((card) => (
-          <FloatingCard key={card.lang} card={card} mx={curX} my={curY} scrollY={scrollY} />
-        ))}
+        <div className="floating-cards" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+          {CARDS.map((card) => (
+            <FloatingCard key={card.lang} card={card} mx={curX} my={curY} scrollY={scrollY} />
+          ))}
+        </div>
 
         {/* hero title — centered, on top */}
         <div
@@ -319,9 +325,10 @@ export default function Home() {
               gap: 12,
               pointerEvents: "auto",
             }}
+            className="hero-cta"
           >
-            <a
-              href="#contato"
+            <button
+              onClick={() => document.getElementById("contato")?.scrollIntoView({ behavior: "smooth" })}
               style={{
                 padding: "10px 26px",
                 background: "var(--text)",
@@ -331,14 +338,16 @@ export default function Home() {
                 fontWeight: 600,
                 letterSpacing: "-0.01em",
                 transition: "opacity 0.15s",
+                border: "none",
+                cursor: "pointer",
               }}
               onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.8")}
               onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
             >
               Falar comigo
-            </a>
-            <a
-              href="#servicos"
+            </button>
+            <button
+              onClick={() => document.getElementById("servicos")?.scrollIntoView({ behavior: "smooth" })}
               style={{
                 padding: "10px 26px",
                 border: "1px solid rgba(25,24,24,0.18)",
@@ -353,7 +362,7 @@ export default function Home() {
               onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "rgba(25,24,24,0.18)")}
             >
               Ver serviços
-            </a>
+            </button>
           </motion.div>
         </div>
 
@@ -387,6 +396,7 @@ export default function Home() {
       {/* ── SOBRE ── */}
       <section
         id="sobre"
+        className="section-inner"
         style={{
           borderTop: "1px solid var(--border)",
           padding: "96px 32px",
@@ -425,13 +435,13 @@ export default function Home() {
             Sou dev há 3 anos, comecei em jogos (Lua, C++, C#) e hoje foco em
             sites e lojas pra clientes reais. Trabalho com React, Next.js e Node.js no front e back,
             e Python quando preciso automatizar algo.
-            Entrego rápido, sem enrolação, orçamento por escopo, sem mensalidade.
+            Entrego rápido, sem enrolação, orçamento por escopo ou mensalidade.
           </p>
         </Reveal>
 
         {/* stats row */}
         <Reveal delay={0.15}>
-          <div style={{ display: "flex", borderTop: "1px solid var(--border)", width: "100%", alignItems: "stretch" }}>
+          <div className="stats-row" style={{ display: "flex", borderTop: "1px solid var(--border)", width: "100%", alignItems: "stretch" }}>
             {[
               { n: "3",   l: "Anos de experiência", node: null },
               { n: "20+", l: "Projetos entregues", node: null },
@@ -474,6 +484,7 @@ export default function Home() {
       {/* ── SERVIÇOS ── */}
       <section
         id="servicos"
+        className="section-inner"
         style={{
           borderTop: "1px solid var(--border)",
           padding: "96px 32px",
@@ -556,6 +567,7 @@ export default function Home() {
       {/* ── CONTATO ── */}
       <section
         id="contato"
+        className="section-inner"
         style={{
           padding: "80px 32px 120px",
           maxWidth: 760,
@@ -589,26 +601,60 @@ export default function Home() {
         </Reveal>
 
         <Reveal delay={0.1}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <a
-              href="mailto:contato@rwque.com"
-              style={{
-                display: "flex", alignItems: "center", gap: 8,
-                padding: "13px 22px",
-                background: "var(--text)",
-                color: "var(--bg)",
-                borderRadius: 10,
-                fontSize: 14,
-                fontWeight: 600,
-                transition: "opacity 0.15s",
-              }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.8")}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
-            >
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 13.5 }}>contato@rwque.com</span>
-              <span>↗</span>
-            </a>
+          <div className="contato-btns" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {/* Email + copy grouped */}
+            <div style={{ display: "flex", borderRadius: 10, overflow: "hidden", background: "var(--text)" }}>
+              <a
+                href="mailto:contato@rwque.com"
+                style={{
+                  display: "flex", alignItems: "center", gap: 8,
+                  padding: "13px 20px",
+                  color: "var(--bg)",
+                  fontSize: 13.5,
+                  fontWeight: 600,
+                  fontFamily: "var(--font-mono)",
+                  transition: "opacity 0.15s",
+                }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.8")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
+              >
+                contato@rwque.com
+              </a>
+              <motion.button
+                onClick={copy}
+                whileTap={{ scale: 0.95 }}
+                title="Copiar e-mail"
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  padding: "13px 14px",
+                  borderLeft: "1px solid rgba(239,237,234,0.18)",
+                  background: "transparent",
+                  color: copied ? "rgba(239,237,234,0.95)" : "rgba(239,237,234,0.55)",
+                  cursor: "pointer",
+                  transition: "color 0.15s",
+                  flexShrink: 0,
+                }}
+              >
+                <AnimatePresence mode="wait">
+                  {copied ? (
+                    <motion.span key="ok" style={{ display: "flex" }} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </motion.span>
+                  ) : (
+                    <motion.span key="cp" style={{ display: "flex" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                      </svg>
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+            </div>
 
+            {/* WhatsApp — mesmo estilo mas fundo escuro */}
             <a
               href="https://wa.me/5531972039690"
               target="_blank"
@@ -616,15 +662,16 @@ export default function Home() {
               style={{
                 display: "flex", alignItems: "center", gap: 8,
                 padding: "13px 20px",
-                border: "1px solid var(--border)",
+                background: "var(--text)",
+                color: "var(--bg)",
                 borderRadius: 10,
                 fontSize: 13.5,
                 fontWeight: 600,
-                color: "var(--text-2)",
-                transition: "border-color 0.15s, color 0.15s",
+                fontFamily: "var(--font-mono)",
+                transition: "opacity 0.15s",
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(25,24,24,0.35)"; (e.currentTarget as HTMLElement).style.color = "var(--text)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--border)"; (e.currentTarget as HTMLElement).style.color = "var(--text-2)"; }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.8")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
@@ -632,42 +679,6 @@ export default function Home() {
               </svg>
               WhatsApp
             </a>
-
-            <motion.button
-              onClick={copy}
-              whileTap={{ scale: 0.95 }}
-              title="Copiar e-mail"
-              style={{
-                width: 40, height: 40,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                border: "1px solid var(--border)",
-                borderRadius: 10,
-                background: copied ? "rgba(25,24,24,0.06)" : "transparent",
-                color: copied ? "var(--text)" : "var(--text-3)",
-                cursor: "pointer",
-                transition: "color 0.15s, background 0.15s, border-color 0.15s",
-                flexShrink: 0,
-              }}
-              onMouseEnter={(e) => { if (!copied) (e.currentTarget as HTMLElement).style.borderColor = "rgba(25,24,24,0.3)"; }}
-              onMouseLeave={(e) => { if (!copied) (e.currentTarget as HTMLElement).style.borderColor = "var(--border)"; }}
-            >
-              <AnimatePresence mode="wait">
-                {copied ? (
-                  <motion.span key="ok" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </motion.span>
-                ) : (
-                  <motion.span key="cp" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" />
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                    </svg>
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </motion.button>
           </div>
         </Reveal>
       </section>

@@ -23,3 +23,40 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--border); }
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; padding: 0; }
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  /* floating cards: hide middle ones that overlap text on mobile */
+  .floating-cards { pointer-events: none; }
+  .floating-card-mid { display: none !important; }
+  .floating-cards img { width: 65px !important; height: 65px !important; }
+
+  /* hero title smaller */
+  .hero-title { font-size: clamp(52px, 14vw, 80px) !important; }
+
+  /* hero subtitle */
+  .hero-sub { font-size: 15px !important; }
+
+  /* hero CTA stack vertically */
+  .hero-cta { flex-direction: column !important; align-items: center !important; }
+
+  /* sections padding */
+  .section-inner { padding: 72px 24px !important; }
+
+  /* sobre stats: wrap */
+  .stats-row { flex-wrap: wrap !important; gap: 24px !important; }
+
+  /* servicos grid: single col */
+  .services-grid { grid-template-columns: 1fr !important; }
+
+  /* contato buttons: stack */
+  .contato-btns { flex-direction: column !important; align-items: stretch !important; }
+  .contato-btns > * { justify-content: center !important; }
+
+  /* nav: hide nav links on mobile */
+  .nav-links { display: none !important; }
+
+  /* sobre headline */
+  .sobre-headline { font-size: clamp(28px, 8vw, 44px) !important; }
+}
+
