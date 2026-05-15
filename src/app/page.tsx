@@ -38,11 +38,11 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 }
 
 const LANG_ICONS: Record<string, ReturnType<typeof Image>> = {
-  JavaScript: <Image src={jsIcon} alt="JavaScript" width={70} height={70} style={{ objectFit: "contain", borderRadius: 14 }} />,
-  TypeScript: <Image src={tsIcon} alt="TypeScript" width={70} height={70} style={{ objectFit: "contain" }} />,
-  Python:     <Image src={pyIcon} alt="Python"     width={70} height={70} style={{ objectFit: "contain" }} />,
-  React:      <Image src={reactIcon} alt="React"   width={70} height={70} style={{ objectFit: "contain", borderRadius: 14 }} />,
-  Lua:        <Image src={luaIcon} alt="Lua"        width={70} height={70} style={{ objectFit: "contain" }} />,
+  JavaScript: <Image src={jsIcon} alt="JavaScript" width={70} height={70} draggable={false} style={{ objectFit: "contain", borderRadius: 14, pointerEvents: "none" }} />,
+  TypeScript: <Image src={tsIcon} alt="TypeScript" width={70} height={70} draggable={false} style={{ objectFit: "contain", pointerEvents: "none" }} />,
+  Python:     <Image src={pyIcon} alt="Python"     width={70} height={70} draggable={false} style={{ objectFit: "contain", pointerEvents: "none" }} />,
+  React:      <Image src={reactIcon} alt="React"   width={70} height={70} draggable={false} style={{ objectFit: "contain", borderRadius: 14, pointerEvents: "none" }} />,
+  Lua:        <Image src={luaIcon} alt="Lua"        width={70} height={70} draggable={false} style={{ objectFit: "contain", pointerEvents: "none" }} />,
 } as unknown as Record<string, React.ReactNode>;
 
 /* ── floating card data ── */
@@ -398,37 +398,64 @@ export default function Home() {
         id="sobre"
         style={{
           borderTop: "1px solid var(--border)",
-          padding: "80px 32px",
+          padding: "96px 32px",
           maxWidth: 760,
           margin: "0 auto",
           scrollMarginTop: 52,
         }}
       >
         <Reveal>
-          <div style={{ display: "flex", gap: 48, alignItems: "flex-start", flexWrap: "wrap" }}>
-            <div style={{ flex: "0 0 120px" }}>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)" }}>
-                Sobre
-              </span>
-            </div>
-            <div style={{ flex: 1, minWidth: 260 }}>
-              <p style={{ fontSize: 17, fontWeight: 500, color: "var(--text)", lineHeight: 1.7, marginBottom: 16, letterSpacing: "-0.01em" }}>
-                Desenvolvo sites e automações há 3 anos. Trabalho com React, Next.js e Node.js — e também faço scraping e automações de browser com Playwright e Python.
-              </p>
-              <p style={{ fontSize: 15, color: "var(--text-2)", lineHeight: 1.8 }}>
-                Baseado no Brasil. Atendo em PT e EN. Sem mensalidade — orçamento por escopo, entrega real.
-              </p>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-3)", display: "block", marginBottom: 40 }}>
+            Sobre
+          </span>
+        </Reveal>
 
-              {/* stats */}
-              <div style={{ marginTop: 36, display: "flex", gap: 32 }}>
-                {[["3+", "anos"], ["20+", "projetos"], ["PT/EN", "idiomas"]].map(([n, l]) => (
-                  <div key={l}>
-                    <div style={{ fontFamily: "var(--font-syne)", fontSize: 28, fontWeight: 800, letterSpacing: "-0.04em", color: "var(--text)" }}>{n}</div>
-                    <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2 }}>{l}</div>
-                  </div>
-                ))}
+        <Reveal delay={0.05}>
+          <h2 style={{
+            fontFamily: "var(--font-syne)",
+            fontSize: "clamp(28px, 4.5vw, 48px)",
+            fontWeight: 800,
+            letterSpacing: "-0.04em",
+            lineHeight: 1.1,
+            color: "var(--text)",
+            marginBottom: 32,
+          }}>
+            Código limpo,<br />
+            <span style={{ color: "var(--text-3)" }}>resultado real.</span>
+          </h2>
+        </Reveal>
+
+        <Reveal delay={0.1}>
+          <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.85, maxWidth: 560, marginBottom: 48 }}>
+            Desenvolvo sites e automações há 3 anos com React, Next.js e Node.js.
+            Faço scraping e automações de browser com Playwright e Python.
+            Baseado no Brasil — atendo em PT e EN, sem mensalidade, orçamento por escopo.
+          </p>
+        </Reveal>
+
+        {/* stats row */}
+        <Reveal delay={0.15}>
+          <div style={{ display: "flex", gap: 0, borderTop: "1px solid var(--border)" }}>
+            {[
+              { n: "3+",   l: "Anos de experiência" },
+              { n: "20+",  l: "Projetos entregues" },
+              { n: "PT/EN", l: "Idiomas" },
+            ].map(({ n, l }, i) => (
+              <div
+                key={l}
+                style={{
+                  flex: 1,
+                  padding: "28px 0 28px",
+                  borderRight: i < 2 ? "1px solid var(--border)" : "none",
+                  paddingLeft: i > 0 ? 28 : 0,
+                }}
+              >
+                <div style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(32px, 5vw, 44px)", fontWeight: 800, letterSpacing: "-0.05em", color: "var(--text)", lineHeight: 1 }}>
+                  {n}
+                </div>
+                <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 6, letterSpacing: "0.02em" }}>{l}</div>
               </div>
-            </div>
+            ))}
           </div>
         </Reveal>
       </section>
