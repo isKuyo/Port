@@ -191,7 +191,7 @@ export default function Home() {
   }
 
   const copy = async () => {
-    try { await navigator.clipboard.writeText("contato@rwque.lol"); }
+    try { await navigator.clipboard.writeText("contato@rwque.com"); }
     catch { window.location.href = "mailto:contato@rwque.lol"; return; }
     setCopied(true);
     setTimeout(() => setCopied(false), 2200);
@@ -205,9 +205,9 @@ export default function Home() {
           position: "fixed",
           top: 0, left: 0, right: 0,
           zIndex: 50,
-          display: "flex",
+          display: "grid",
+          gridTemplateColumns: "1fr auto 1fr",
           alignItems: "center",
-          justifyContent: "space-between",
           padding: "0 32px",
           height: 52,
           background: "var(--bg)",
@@ -226,7 +226,7 @@ export default function Home() {
           rwque
         </span>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
           {[
             { label: "Sobre", href: "#sobre" },
             { label: "Serviços", href: "#servicos" },
@@ -242,17 +242,8 @@ export default function Home() {
               {label}
             </a>
           ))}
-          <a
-            href="https://github.com/isKuyo"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ fontSize: 13, color: "var(--text-3)", transition: "color 0.15s" }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text)")}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text-3)")}
-          >
-            GitHub ↗
-          </a>
         </div>
+        <div />
       </header>
 
       {/* ── HERO ── */}
@@ -427,9 +418,10 @@ export default function Home() {
 
         <Reveal delay={0.1}>
           <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.85, maxWidth: 560, marginBottom: 48 }}>
-            Desenvolvo sites e automações há 3 anos com React, Next.js e Node.js.
-            Faço scraping e automações de browser com Playwright e Python.
-            Baseado no Brasil — atendo em PT e EN, sem mensalidade, orçamento por escopo.
+            Sou dev há 3~4 anos — comecei em jogos (Lua, C++, C#) e hoje foco em
+            sites e lojas pra clientes reais. Trabalho com React, Next.js e Node.js no front e back,
+            e Python quando preciso automatizar algo.
+            Entrego rápido, sem enrolação — orçamento por escopo, sem mensalidade.
           </p>
         </Reveal>
 
@@ -544,7 +536,7 @@ export default function Home() {
         <Reveal delay={0.1}>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 380 }}>
             <a
-              href="mailto:contato@rwque.lol"
+              href="mailto:contato@rwque.com"
               style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
                 padding: "16px 20px",
@@ -558,7 +550,7 @@ export default function Home() {
               onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.8")}
               onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
             >
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 13.5 }}>contato@rwque.lol</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 13.5 }}>contato@rwque.com</span>
               <span>↗</span>
             </a>
 
