@@ -1,24 +1,45 @@
-"use client";
+﻿"use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/sobre", label: "Sobre" },
-  { href: "/skills", label: "Skills" },
-  { href: "/servicos", label: "Serviços" },
-  { href: "/contato", label: "Contato" },
+  { href: "#home", label: "Home" },
+  { href: "#sobre", label: "Sobre" },
+  { href: "#skills", label: "Skills" },
+  { href: "#servicos", label: "ServiÃ§os" },
+  { href: "#contato", label: "Contato" },
 ];
 
 export default function Navbar() {
-  const pathname = usePathname();
+  const [active, setActive] = useState("home");
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Track active section via IntersectionObserver
+  useEffect(() => {
+    const sections = NAV_LINKS.map(({ href }) => href.slice(1));
+    const observers: IntersectionObserver[] = [];
+
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setActive(id); },
+        { rootMargin: "-40% 0px -55% 0px" }
+      );
+      obs.observe(el);
+      observers.push(obs);
+    });
+
+    return () => observers.forEach((o) => o.disconnect());
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
@@ -26,11 +47,11 @@ export default function Navbar() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const scrollTo = (id: string) => {
+    setOpen(false);
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <>
@@ -43,13 +64,13 @@ export default function Navbar() {
           borderBottom: scrolled ? "1px solid var(--border)" : "1px solid transparent",
           backdropFilter: "blur(24px)",
           WebkitBackdropFilter: "blur(24px)",
-          background: scrolled ? "rgba(8,8,8,0.92)" : "rgba(8,8,8,0.6)",
-          transition: "background 0.3s ease, border-color 0.3s ease",
+          background: scrolled ? "rgba(8,8,8,0.94)" : "rgba(8,8,8,0.5)",
+          transition: "background 0.35s ease, border-color 0.35s ease",
         }}
       >
         <div
           style={{
-            maxWidth: 1200,
+            maxWidth: 1100,
             margin: "0 auto",
             height: "100%",
             padding: "0 32px",
@@ -59,7 +80,10 @@ export default function Navbar() {
           }}
         >
           {/* Logo */}
-          <Link href="/" style={{ textDecoration: "none" }}>
+          <button
+            onClick={() => scrollTo("home")}
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+          >
             <span
               style={{
                 fontFamily: "var(--font-syne)",
@@ -71,35 +95,38 @@ export default function Navbar() {
             >
               rwque<span style={{ color: "var(--accent)" }}>.</span>
             </span>
-          </Link>
+          </button>
 
           {/* Desktop nav */}
           <div className="nav-desktop" style={{ alignItems: "center", gap: 2 }}>
             {NAV_LINKS.map(({ href, label }) => {
-              const active = pathname === href;
+              const id = href.slice(1);
+              const isActive = active === id;
               return (
-                <Link
+                <button
                   key={href}
-                  href={href}
+                  onClick={() => scrollTo(id)}
                   style={{
                     position: "relative",
                     padding: "6px 14px",
                     borderRadius: 8,
                     fontSize: 13.5,
                     fontWeight: 500,
-                    color: active ? "var(--text)" : "var(--text-muted)",
-                    textDecoration: "none",
+                    color: isActive ? "var(--text)" : "var(--text-muted)",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
                     transition: "color 0.2s ease",
                     letterSpacing: "-0.01em",
                   }}
                   onMouseEnter={(e) => {
-                    if (!active) (e.currentTarget as HTMLElement).style.color = "var(--text)";
+                    if (!isActive) (e.currentTarget as HTMLElement).style.color = "var(--text)";
                   }}
                   onMouseLeave={(e) => {
-                    if (!active) (e.currentTarget as HTMLElement).style.color = "var(--text-muted)";
+                    if (!isActive) (e.currentTarget as HTMLElement).style.color = "var(--text-muted)";
                   }}
                 >
-                  {active && (
+                  {isActive && (
                     <motion.span
                       layoutId="nav-bg"
                       style={{
@@ -112,11 +139,11 @@ export default function Navbar() {
                     />
                   )}
                   <span style={{ position: "relative" }}>{label}</span>
-                  {active && (
+                  {isActive && (
                     <span
                       style={{
                         position: "absolute",
-                        bottom: 3,
+                        bottom: 2,
                         left: "50%",
                         transform: "translateX(-50%)",
                         width: 4,
@@ -126,10 +153,33 @@ export default function Navbar() {
                       }}
                     />
                   )}
-                </Link>
+                </button>
               );
             })}
           </div>
+
+          {/* CTA button */}
+          <button
+            className="nav-desktop"
+            onClick={() => scrollTo("contato")}
+            style={{
+              padding: "7px 18px",
+              background: "var(--accent)",
+              color: "#080808",
+              border: "none",
+              borderRadius: 8,
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: "pointer",
+              letterSpacing: "-0.01em",
+              transition: "opacity 0.15s",
+              alignItems: "center",
+            }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.82")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
+          >
+            Contato
+          </button>
 
           {/* Mobile hamburger */}
           <button
@@ -194,23 +244,26 @@ export default function Navbar() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05, duration: 0.2 }}
               >
-                <Link
-                  href={href}
+                <button
+                  onClick={() => scrollTo(href.slice(1))}
                   style={{
                     display: "block",
+                    width: "100%",
+                    textAlign: "left",
                     padding: "13px 24px",
                     fontSize: 17,
                     fontWeight: 600,
-                    color: pathname === href ? "var(--text)" : "var(--text-muted)",
-                    textDecoration: "none",
+                    color: active === href.slice(1) ? "var(--text)" : "var(--text-muted)",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
                     fontFamily: "var(--font-syne)",
                     letterSpacing: "-0.02em",
-                    borderLeft: pathname === href ? "2px solid var(--accent)" : "2px solid transparent",
-                    transition: "border-color 0.2s",
+                    borderLeft: active === href.slice(1) ? "2px solid var(--accent)" : "2px solid transparent",
                   }}
                 >
                   {label}
-                </Link>
+                </button>
               </motion.div>
             ))}
           </motion.div>
