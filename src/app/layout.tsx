@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Syne, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
 
 const syne = Syne({
   subsets: ["latin"],
@@ -38,10 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={`${syne.variable} ${jakarta.variable} ${mono.variable}`}>
       <body>
-        <Navbar />
-        <div style={{ paddingTop: "var(--nav-height)" }}>
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   );
