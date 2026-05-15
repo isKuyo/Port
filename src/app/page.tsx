@@ -11,6 +11,12 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { useRef, useState } from "react";
+import Image from "next/image";
+import jsIcon from "@/assets/images/JavaScript.png";
+import tsIcon from "@/assets/images/TypeScript.png";
+import pyIcon from "@/assets/images/Python.png";
+import reactIcon from "@/assets/images/React.png";
+import luaIcon from "@/assets/images/Lua.png";
 
 /* ── ease ── */
 const E = [0.16, 1, 0.3, 1] as [number, number, number, number];
@@ -31,45 +37,13 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
   );
 }
 
-/* ── language icons (inline SVG) ── */
-const LANG_ICONS: Record<string, React.ReactNode> = {
-  JavaScript: (
-    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="52" height="52">
-      <rect width="32" height="32" rx="4" fill="#f0db4f"/>
-      <path d="M6 6h20v20H6z" fill="#f0db4f"/>
-      <path d="M19.5 21.5c.4.7 1 1.2 2 1.2 1 0 1.6-.5 1.6-1.2 0-.8-.6-1.1-1.7-1.6l-.6-.2c-1.7-.7-2.8-1.6-2.8-3.4 0-1.7 1.3-3 3.3-3 1.4 0 2.4.5 3.2 1.8l-1.7 1.1c-.4-.7-.8-1-1.5-1-.7 0-1.1.4-1.1 1 0 .7.4 1 1.5 1.5l.6.2c2 .9 3.1 1.7 3.1 3.6 0 2-1.6 3.2-3.7 3.2-2.1 0-3.4-1-4.1-2.3l1.9-1.1zm-9.2.2c.3.5.6.9 1.3.9.6 0 1-.2 1-1.2v-6.9h2.2v7c0 2-1.2 2.9-2.9 2.9-1.5 0-2.4-.8-2.9-1.8l1.3-.9z" fill="#333"/>
-    </svg>
-  ),
-  TypeScript: (
-    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="52" height="52">
-      <rect width="32" height="32" rx="4" fill="#3178c6"/>
-      <path d="M18.1 22.8v2.3c.4.2.9.4 1.4.5.6.1 1.2.2 1.8.2.6 0 1.2-.1 1.8-.2.6-.2 1-.4 1.4-.8.4-.3.7-.8.9-1.3.2-.5.3-1.1.3-1.8 0-.5-.1-1-.2-1.4-.1-.4-.4-.8-.6-1.1-.3-.3-.6-.6-1-.9-.4-.2-.9-.5-1.4-.7-.4-.2-.7-.3-1-.5-.3-.1-.5-.3-.7-.4-.2-.1-.3-.3-.4-.5-.1-.2-.1-.4-.1-.6 0-.2 0-.4.1-.5.1-.2.2-.3.4-.4.2-.1.3-.2.5-.2.2-.1.4-.1.6-.1.2 0 .4 0 .6.1.2.1.4.1.7.2.2.1.4.2.6.4.2.1.4.3.5.5l1.6-1.7c-.3-.4-.6-.7-1-.9-.4-.2-.7-.4-1.1-.5-.4-.1-.8-.2-1.2-.2-.4 0-.8 0-1.2.1-.6.1-1.2.3-1.6.6-.5.3-.9.7-1.2 1.2-.3.5-.4 1.1-.4 1.7 0 .9.2 1.6.7 2.2.5.6 1.2 1.1 2.1 1.5.4.2.8.3 1.1.5.3.1.6.3.8.4.2.2.4.3.5.5.1.2.2.4.2.7 0 .2 0 .5-.1.6-.1.2-.2.3-.4.4-.2.1-.4.2-.6.2-.2 0-.5.1-.7.1-.5 0-1-.1-1.5-.3-.4-.3-.8-.6-1.2-1zM12 16.2H9v-2.2h8.4v2.2h-3v8.7H12v-8.7z" fill="white"/>
-    </svg>
-  ),
-  Python: (
-    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="52" height="52">
-      <rect width="32" height="32" rx="4" fill="#1e3a5f"/>
-      <path d="M16 5c-2.3 0-4 .4-5 1.2C10 7 9.5 8 9.5 9.3v1.7h6.5v.5H7.8C6.8 11.5 6 12.4 6 14c0 1.9.9 3.1 2.6 3.5.3.1.7.1 1.1.1H11v-2c0-1.2.5-2.1 1.5-2.7C13.5 12.3 14.7 12 16 12c1.4 0 2.5.3 3.3.9.8.6 1.2 1.4 1.2 2.4v4.5c0 .9-.4 1.7-1.1 2.2-.8.5-1.9.8-3.4.8-1.5 0-2.7-.3-3.5-.9-.8-.6-1.2-1.5-1.2-2.6V18h-2v1.3c0 1.3.5 2.3 1.5 3.1 1 .7 2.6 1.1 4.7 1.1 2 0 3.6-.4 4.7-1.1 1.1-.8 1.6-1.8 1.6-3V16c0-1.2-.5-2.2-1.4-2.9C19.1 12.4 17.7 12 16 12v-.5H23.5c.5-.5.5-1 .5-1.5V9.3C24 7 22.2 5 16 5zm0 2.5c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9zm0 12.2c-.5 0-.9-.4-.9-.9s.4-.9.9-.9.9.4.9.9-.4.9-.9.9z" fill="#4b9cd3"/>
-    </svg>
-  ),
-  React: (
-    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="52" height="52">
-      <rect width="32" height="32" rx="4" fill="#1a2332"/>
-      <ellipse cx="16" cy="16" rx="2.5" ry="2.5" fill="#61dafb"/>
-      <ellipse cx="16" cy="16" rx="10" ry="4" stroke="#61dafb" strokeWidth="1.2" fill="none"/>
-      <ellipse cx="16" cy="16" rx="10" ry="4" stroke="#61dafb" strokeWidth="1.2" fill="none" transform="rotate(60 16 16)"/>
-      <ellipse cx="16" cy="16" rx="10" ry="4" stroke="#61dafb" strokeWidth="1.2" fill="none" transform="rotate(120 16 16)"/>
-    </svg>
-  ),
-  Lua: (
-    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="52" height="52">
-      <rect width="32" height="32" rx="4" fill="#1a1a2e"/>
-      <circle cx="16" cy="16" r="7" fill="#00007c"/>
-      <circle cx="16" cy="16" r="5" fill="#fff"/>
-      <circle cx="21" cy="11" r="3" fill="#fff"/>
-    </svg>
-  ),
-};
+const LANG_ICONS: Record<string, ReturnType<typeof Image>> = {
+  JavaScript: <Image src={jsIcon} alt="JavaScript" width={70} height={70} style={{ objectFit: "contain" }} />,
+  TypeScript: <Image src={tsIcon} alt="TypeScript" width={70} height={70} style={{ objectFit: "contain" }} />,
+  Python:     <Image src={pyIcon} alt="Python"     width={70} height={70} style={{ objectFit: "contain" }} />,
+  React:      <Image src={reactIcon} alt="React"   width={70} height={70} style={{ objectFit: "contain" }} />,
+  Lua:        <Image src={luaIcon} alt="Lua"        width={70} height={70} style={{ objectFit: "contain" }} />,
+} as unknown as Record<string, React.ReactNode>;
 
 /* ── floating card data ── */
 const CARDS = [
@@ -77,7 +51,7 @@ const CARDS = [
     w: 110, h: 110,
     top: "10%", left: "5%",
     rotate: -8,
-    bg: "linear-gradient(145deg, #2a2010, #4a3c1a)",
+    bg: "none",
     factorX: -0.028, factorY: -0.018,
     scrollFactor: -120,
     lang: "JavaScript",
@@ -86,7 +60,7 @@ const CARDS = [
     w: 110, h: 110,
     top: "6%", right: "7%",
     rotate: 7,
-    bg: "linear-gradient(145deg, #0d2244, #1a3a6e)",
+    bg: "none",
     factorX: 0.022, factorY: -0.025,
     scrollFactor: -80,
     lang: "TypeScript",
@@ -95,7 +69,7 @@ const CARDS = [
     w: 100, h: 100,
     top: "52%", left: "3%",
     rotate: -5,
-    bg: "linear-gradient(145deg, #0f2035, #1a3555)",
+    bg: "none",
     factorX: -0.018, factorY: 0.022,
     scrollFactor: 60,
     lang: "Python",
@@ -104,7 +78,7 @@ const CARDS = [
     w: 110, h: 110,
     top: "44%", right: "4%",
     rotate: 5,
-    bg: "linear-gradient(145deg, #0d1a24, #102030)",
+    bg: "none",
     factorX: 0.032, factorY: 0.015,
     scrollFactor: 100,
     lang: "React",
@@ -113,7 +87,7 @@ const CARDS = [
     w: 100, h: 100,
     bottom: "10%", left: "9%",
     rotate: 11,
-    bg: "linear-gradient(145deg, #100c22, #1e1540)",
+    bg: "none",
     factorX: -0.015, factorY: 0.03,
     scrollFactor: 140,
     lang: "Lua",
@@ -163,14 +137,11 @@ function FloatingCard({
         x: springX,
         y: combinedY,
         rotate: card.rotate,
-        background: card.bg,
-        borderRadius: 16,
-        boxShadow: "0 20px 60px rgba(0,0,0,0.22)",
-        overflow: "hidden",
         userSelect: "none",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.18))",
       }}
     >
       {LANG_ICONS[card.lang]}
