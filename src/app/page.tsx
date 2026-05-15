@@ -17,6 +17,8 @@ import tsIcon from "@/assets/images/TypeScript.png";
 import pyIcon from "@/assets/images/Python.png";
 import reactIcon from "@/assets/images/React.png";
 import luaIcon from "@/assets/images/Lua.png";
+import brFlag from "@/assets/images/BrazilFlag.png";
+import usFlag from "@/assets/images/UnitedStatesFlag.png";
 
 /* ── ease ── */
 const E = [0.16, 1, 0.3, 1] as [number, number, number, number];
@@ -431,25 +433,35 @@ export default function Home() {
 
         {/* stats row */}
         <Reveal delay={0.15}>
-          <div style={{ display: "flex", gap: 0, borderTop: "1px solid var(--border)" }}>
+          <div style={{ display: "flex", borderTop: "1px solid var(--border)", width: "100%" }}>
             {[
-              { n: "3",    l: "Anos de experiência" },
-              { n: "20+",  l: "Projetos entregues" },
-              { n: "\uD83C\uDDE7\uD83C\uDDF7 \uD83C\uDDFA\uD83C\uDDF8", l: "PT e EN" },
-            ].map(({ n, l }, i) => (
+              { n: "3",   l: "Anos de experiência", node: null },
+              { n: "20+", l: "Projetos entregues", node: null },
+              { n: "",    l: "PT e EN", node: "flags" },
+            ].map(({ n, l, node }, i) => (
               <div
                 key={l}
                 style={{
                   flex: 1,
-                  padding: "28px 0 28px",
+                  padding: "32px 24px",
                   borderRight: i < 2 ? "1px solid var(--border)" : "none",
-                  paddingLeft: i > 0 ? 28 : 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 8,
                 }}
               >
-                <div style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(32px, 5vw, 44px)", fontWeight: 800, letterSpacing: "-0.05em", color: "var(--text)", lineHeight: 1 }}>
-                  {n}
-                </div>
-                <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 6, letterSpacing: "0.02em" }}>{l}</div>
+                {node === "flags" ? (
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <Image src={brFlag} alt="Brasil" width={36} height={26} draggable={false} style={{ objectFit: "cover", borderRadius: 4, pointerEvents: "none" }} />
+                    <Image src={usFlag} alt="EUA" width={36} height={26} draggable={false} style={{ objectFit: "cover", borderRadius: 4, pointerEvents: "none" }} />
+                  </div>
+                ) : (
+                  <div style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(30px, 4.5vw, 42px)", fontWeight: 800, letterSpacing: "-0.05em", color: "var(--text)", lineHeight: 1 }}>
+                    {n}
+                  </div>
+                )}
+                <div style={{ fontSize: 11.5, color: "var(--text-3)", letterSpacing: "0.02em" }}>{l}</div>
               </div>
             ))}
           </div>
