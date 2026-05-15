@@ -17,8 +17,6 @@ import tsIcon from "@/assets/images/TypeScript.png";
 import pyIcon from "@/assets/images/Python.png";
 import reactIcon from "@/assets/images/React.png";
 import luaIcon from "@/assets/images/Lua.png";
-import brFlag from "@/assets/images/BrazilFlag.png";
-import usFlag from "@/assets/images/UnitedStatesFlag.png";
 
 /* ── ease ── */
 const E = [0.16, 1, 0.3, 1] as [number, number, number, number];
@@ -453,8 +451,10 @@ export default function Home() {
               >
                 {node === "flags" ? (
                   <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <Image src={brFlag} alt="Brasil" width={36} height={26} draggable={false} style={{ objectFit: "cover", borderRadius: 4, pointerEvents: "none" }} />
-                    <Image src={usFlag} alt="EUA" width={36} height={26} draggable={false} style={{ objectFit: "cover", borderRadius: 4, pointerEvents: "none" }} />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/BrazilFlag.svg" alt="Brasil" width={36} height={26} draggable={false} style={{ objectFit: "cover", borderRadius: 4, pointerEvents: "none" }} />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/UnitedStatesFlag.svg" alt="EUA" width={36} height={26} draggable={false} style={{ objectFit: "cover", borderRadius: 4, pointerEvents: "none" }} />
                   </div>
                 ) : (
                   <div style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(30px, 4.5vw, 42px)", fontWeight: 800, letterSpacing: "-0.05em", color: "var(--text)", lineHeight: 1 }}>
