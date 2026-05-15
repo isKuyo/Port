@@ -431,7 +431,7 @@ export default function Home() {
 
         {/* stats row */}
         <Reveal delay={0.15}>
-          <div style={{ display: "flex", borderTop: "1px solid var(--border)", width: "100%" }}>
+          <div style={{ display: "flex", borderTop: "1px solid var(--border)", width: "100%", alignItems: "stretch" }}>
             {[
               { n: "3",   l: "Anos de experiência", node: null },
               { n: "20+", l: "Projetos entregues", node: null },
@@ -446,21 +446,24 @@ export default function Home() {
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  gap: 8,
+                  justifyContent: "center",
+                  gap: 10,
                 }}
               >
-                {node === "flags" ? (
-                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/BrazilFlag.svg" alt="Brasil" width={36} height={26} draggable={false} style={{ objectFit: "cover", borderRadius: 4, pointerEvents: "none" }} />
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/UnitedStatesFlag.png" alt="EUA" width={36} height={26} draggable={false} style={{ objectFit: "cover", borderRadius: 4, pointerEvents: "none" }} />
-                  </div>
-                ) : (
-                  <div style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(30px, 4.5vw, 42px)", fontWeight: 800, letterSpacing: "-0.05em", color: "var(--text)", lineHeight: 1 }}>
-                    {n}
-                  </div>
-                )}
+                <div style={{ height: 52, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {node === "flags" ? (
+                    <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/BrazilFlag.svg" alt="Brasil" width={52} height={38} draggable={false} style={{ objectFit: "cover", borderRadius: 5, pointerEvents: "none" }} />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/UnitedStatesFlag.png" alt="EUA" width={52} height={38} draggable={false} style={{ objectFit: "cover", borderRadius: 5, pointerEvents: "none" }} />
+                    </div>
+                  ) : (
+                    <div style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(30px, 4.5vw, 42px)", fontWeight: 800, letterSpacing: "-0.05em", color: "var(--text)", lineHeight: 1 }}>
+                      {n}
+                    </div>
+                  )}
+                </div>
                 <div style={{ fontSize: 11.5, color: "var(--text-3)", letterSpacing: "0.02em" }}>{l}</div>
               </div>
             ))}
