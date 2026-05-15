@@ -159,7 +159,7 @@ const SERVICES = [
   {
     n: "01",
     title: "Desenvolvimento Web",
-    desc: "Sites, landing pages e apps completos — Next.js, React, TypeScript, do design ao deploy.",
+    desc: "Sites, landing pages e apps completos, Next.js, React, TypeScript, do design ao deploy.",
   },
   {
     n: "02",
@@ -169,7 +169,7 @@ const SERVICES = [
   {
     n: "03",
     title: "Scripts & Ferramentas",
-    desc: "CLIs, bots de Discord, scripts Lua/Bash, integrações de API — ferramentas sob medida.",
+    desc: "CLIs, bots de Discord, scripts Lua/Bash, integrações de API, ferramentas sob medida.",
   },
 ];
 
@@ -480,6 +480,7 @@ export default function Home() {
           maxWidth: 760,
           margin: "0 auto",
           scrollMarginTop: 52,
+          textAlign: "center",
         }}
       >
         <Reveal>
@@ -552,18 +553,21 @@ export default function Home() {
               </span>
             </div>
           </Reveal>
-        ))}
+        ))}      
       </section>
 
       {/* ── CONTATO ── */}
       <section
         id="contato"
         style={{
-          borderTop: "1px solid var(--border)",
           padding: "80px 32px 120px",
           maxWidth: 760,
           margin: "0 auto",
           scrollMarginTop: 52,
+          textAlign: "center",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
         <Reveal>
@@ -588,12 +592,12 @@ export default function Home() {
         </Reveal>
 
         <Reveal delay={0.1}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 380 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <a
               href="mailto:contato@rwque.com"
               style={{
-                display: "flex", alignItems: "center", justifyContent: "space-between",
-                padding: "16px 20px",
+                display: "flex", alignItems: "center", gap: 8,
+                padding: "13px 22px",
                 background: "var(--text)",
                 color: "var(--bg)",
                 borderRadius: 10,
@@ -610,34 +614,35 @@ export default function Home() {
 
             <motion.button
               onClick={copy}
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.95 }}
+              title="Copiar e-mail"
               style={{
-                padding: "14px 20px",
+                width: 40, height: 40,
+                display: "flex", alignItems: "center", justifyContent: "center",
                 border: "1px solid var(--border)",
                 borderRadius: 10,
-                fontSize: 12.5,
-                fontFamily: "var(--font-mono)",
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
+                background: copied ? "rgba(25,24,24,0.06)" : "transparent",
                 color: copied ? "var(--text)" : "var(--text-3)",
-                background: copied ? "rgba(25,24,24,0.05)" : "transparent",
+                cursor: "pointer",
                 transition: "color 0.15s, background 0.15s, border-color 0.15s",
+                flexShrink: 0,
               }}
               onMouseEnter={(e) => { if (!copied) (e.currentTarget as HTMLElement).style.borderColor = "rgba(25,24,24,0.3)"; }}
               onMouseLeave={(e) => { if (!copied) (e.currentTarget as HTMLElement).style.borderColor = "var(--border)"; }}
             >
               <AnimatePresence mode="wait">
                 {copied ? (
-                  <motion.span key="ok" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <motion.span key="ok" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
-                    Copiado!
                   </motion.span>
                 ) : (
                   <motion.span key="cp" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    Copiar e-mail
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
                   </motion.span>
                 )}
               </AnimatePresence>
