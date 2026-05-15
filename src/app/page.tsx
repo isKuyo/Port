@@ -1,57 +1,183 @@
 ﻿"use client";
 
-import { motion, useInView, AnimatePresence } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  useInView,
+  AnimatePresence,
+  type MotionValue,
+} from "framer-motion";
 import { useRef, useState } from "react";
 
-const ease = [0.16, 1, 0.3, 1] as [number, number, number, number];
+/* ── ease ── */
+const E = [0.16, 1, 0.3, 1] as [number, number, number, number];
 
+/* ── fade-in on scroll ── */
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef(null);
-  const v = useInView(ref, { once: true, margin: "-50px" });
+  const v = useInView(ref, { once: true, margin: "-60px" });
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 14 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={v ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.55, ease, delay }}
+      transition={{ duration: 0.6, ease: E, delay }}
     >
       {children}
     </motion.div>
   );
 }
 
-const SERVICES = [
+/* ── floating card data ── */
+const CARDS = [
   {
-    title: "Desenvolvimento Web",
-    desc: "Sites, landing pages e web apps completos. Do design ao deploy — com Next.js, React e TypeScript.",
+    // top-left
+    w: 155, h: 205,
+    top: "8%", left: "4%",
+    rotate: -8,
+    bg: "linear-gradient(145deg, #2d1b4e, #5b3d8a)",
+    factorX: -0.028, factorY: -0.018,
+    label: "React",
   },
   {
-    title: "Automações de Sites",
-    desc: "Scrapers, bots e fluxos automáticos com Playwright e Python. Se acontece num browser, dá pra automatizar.",
+    // top-right
+    w: 135, h: 180,
+    top: "5%", right: "6%",
+    rotate: 7,
+    bg: "linear-gradient(145deg, #1a3a2a, #2d6e4e)",
+    factorX: 0.022, factorY: -0.025,
+    label: "Node.js",
   },
   {
-    title: "Scripts & Ferramentas",
-    desc: "CLIs, bots de Discord, scripts em Lua e Bash, integrações de API — ferramentas sob medida para qualquer problema.",
+    // mid-left (lower)
+    w: 120, h: 155,
+    top: "50%", left: "2%",
+    rotate: -5,
+    bg: "linear-gradient(145deg, #3d2010, #a0481c)",
+    factorX: -0.018, factorY: 0.022,
+    label: "Python",
+  },
+  {
+    // mid-right
+    w: 140, h: 110,
+    top: "42%", right: "3%",
+    rotate: 5,
+    bg: "linear-gradient(145deg, #1c2c3d, #2e5f8a)",
+    factorX: 0.032, factorY: 0.015,
+    label: "Next.js",
+  },
+  {
+    // bottom-left
+    w: 105, h: 140,
+    bottom: "8%", left: "8%",
+    rotate: 11,
+    bg: "linear-gradient(145deg, #3b3020, #7a6030)",
+    factorX: -0.015, factorY: 0.03,
+    label: "Automation",
   },
 ];
 
-const STACK = ["React", "Next.js", "TypeScript", "Node.js", "Python", "Playwright", "Puppeteer", "Lua", "Bash", "Tailwind CSS", "PostgreSQL", "Vercel"];
+/* ── one floating card ── */
+function FloatingCard({
+  card,
+  mx,
+  my,
+}: {
+  card: typeof CARDS[0];
+  mx: MotionValue<number>;
+  my: MotionValue<number>;
+}) {
+  const springX = useSpring(
+    useTransform(mx, (v) => v * card.factorX * 600),
+    { stiffness: 60, damping: 18 }
+  );
+  const springY = useSpring(
+    useTransform(my, (v) => v * card.factorY * 600),
+    { stiffness: 60, damping: 18 }
+  );
 
-const S = {
-  wrap: {
-    maxWidth: 600,
-    margin: "0 auto",
-    padding: "0 28px",
-  } as React.CSSProperties,
-  divider: {
-    width: "100%",
-    height: 1,
-    background: "var(--border)",
-  } as React.CSSProperties,
-};
+  const pos: React.CSSProperties = {
+    position: "absolute",
+    width: card.w,
+    height: card.h,
+    ...(card.top !== undefined ? { top: card.top } : {}),
+    ...(card.bottom !== undefined ? { bottom: card.bottom } : {}),
+    ...(card.left !== undefined ? { left: card.left } : {}),
+    ...(card.right !== undefined ? { right: card.right } : {}),
+  };
 
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.85 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.9, ease: E, delay: 0.1 + CARDS.indexOf(card) * 0.07 }}
+      style={{
+        ...pos,
+        x: springX,
+        y: springY,
+        rotate: card.rotate,
+        background: card.bg,
+        borderRadius: 12,
+        boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
+        overflow: "hidden",
+        userSelect: "none",
+      }}
+    >
+      {/* label at bottom */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 12,
+          left: 14,
+          fontFamily: "var(--font-mono)",
+          fontSize: 10,
+          letterSpacing: "0.1em",
+          color: "rgba(255,255,255,0.45)",
+          textTransform: "uppercase",
+        }}
+      >
+        {card.label}
+      </div>
+    </motion.div>
+  );
+}
+
+/* ── services data ── */
+const SERVICES = [
+  {
+    n: "01",
+    title: "Desenvolvimento Web",
+    desc: "Sites, landing pages e apps completos — Next.js, React, TypeScript, do design ao deploy.",
+  },
+  {
+    n: "02",
+    title: "Automações de Sites",
+    desc: "Scrapers, bots e fluxos automáticos. Playwright e Python. Se acontece num browser, dá pra automatizar.",
+  },
+  {
+    n: "03",
+    title: "Scripts & Ferramentas",
+    desc: "CLIs, bots de Discord, scripts Lua/Bash, integrações de API — ferramentas sob medida.",
+  },
+];
+
+/* ══════════════════════════════
+   PAGE
+══════════════════════════════ */
 export default function Home() {
+  const heroRef = useRef<HTMLElement>(null);
+  const curX = useMotionValue(0);
+  const curY = useMotionValue(0);
   const [copied, setCopied] = useState(false);
+
+  function onMouseMove(e: React.MouseEvent<HTMLElement>) {
+    const r = heroRef.current?.getBoundingClientRect();
+    if (!r) return;
+    curX.set((e.clientX - r.left) / r.width * 2 - 1);
+    curY.set((e.clientY - r.top) / r.height * 2 - 1);
+  }
 
   const copy = async () => {
     try { await navigator.clipboard.writeText("contato@rwque.lol"); }
@@ -62,108 +188,149 @@ export default function Home() {
 
   return (
     <>
-      {/* ── TOP NAV ────────────────────────── */}
-      <nav
+      {/* ── NAV ── */}
+      <header
         style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 10,
+          position: "fixed",
+          top: 0, left: 0, right: 0,
+          zIndex: 50,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 32px",
+          height: 52,
           background: "var(--bg)",
           borderBottom: "1px solid var(--border)",
         }}
       >
-        <div
+        <span
           style={{
-            ...S.wrap,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            height: 52,
+            fontFamily: "var(--font-syne)",
+            fontSize: 15,
+            fontWeight: 800,
+            letterSpacing: "-0.03em",
+            color: "var(--text)",
           }}
         >
-          <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "-0.01em", color: "var(--text)" }}>
-            rwque
-          </span>
-          <div style={{ display: "flex", gap: 8 }}>
-            <a
-              href="https://github.com/isKuyo"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "flex", alignItems: "center", justifyContent: "center",
-                width: 34, height: 34, borderRadius: 8,
-                border: "1px solid var(--border)",
-                color: "var(--text-3)",
-                transition: "color 0.15s, border-color 0.15s",
-              }}
-              onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.color = "var(--text)"; el.style.borderColor = "rgba(25,24,24,0.25)"; }}
-              onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.color = "var(--text-3)"; el.style.borderColor = "var(--border)"; }}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
-              </svg>
-            </a>
-            <a
-              href="mailto:contato@rwque.lol"
-              style={{
-                display: "flex", alignItems: "center", justifyContent: "center",
-                width: 34, height: 34, borderRadius: 8,
-                border: "1px solid var(--border)",
-                color: "var(--text-3)",
-                transition: "color 0.15s, border-color 0.15s",
-              }}
-              onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.color = "var(--text)"; el.style.borderColor = "rgba(25,24,24,0.25)"; }}
-              onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.color = "var(--text-3)"; el.style.borderColor = "var(--border)"; }}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                <polyline points="22,6 12,13 2,6" />
-              </svg>
-            </a>
-          </div>
-        </div>
-      </nav>
+          rwque
+        </span>
 
-      {/* ── HERO ────────────────────────── */}
-      <section style={{ ...S.wrap, paddingTop: 80, paddingBottom: 80 }}>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease }}
+        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+          {[
+            { label: "Sobre", href: "#sobre" },
+            { label: "Serviços", href: "#servicos" },
+            { label: "Contato", href: "#contato" },
+          ].map(({ label, href }) => (
+            <a
+              key={href}
+              href={href}
+              style={{ fontSize: 13, color: "var(--text-3)", transition: "color 0.15s" }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text)")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text-3)")}
+            >
+              {label}
+            </a>
+          ))}
+          <a
+            href="https://github.com/isKuyo"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: 13, color: "var(--text-3)", transition: "color 0.15s" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text)")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text-3)")}
+          >
+            GitHub ↗
+          </a>
+        </div>
+      </header>
+
+      {/* ── HERO ── */}
+      <section
+        ref={heroRef}
+        onMouseMove={onMouseMove}
+        style={{
+          position: "relative",
+          height: "100dvh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
+          paddingTop: 52,
+        }}
+      >
+        {/* floating cards */}
+        {CARDS.map((card) => (
+          <FloatingCard key={card.label} card={card} mx={curX} my={curY} />
+        ))}
+
+        {/* hero title — centered, on top */}
+        <div
+          style={{
+            position: "relative",
+            zIndex: 2,
+            textAlign: "center",
+            pointerEvents: "none",
+          }}
         >
-          <h1
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: E, delay: 0.2 }}
             style={{
               fontFamily: "var(--font-syne)",
-              fontSize: "clamp(36px, 7vw, 56px)",
+              fontSize: "clamp(72px, 12vw, 152px)",
               fontWeight: 800,
-              letterSpacing: "-0.04em",
-              lineHeight: 1.1,
+              letterSpacing: "-0.05em",
+              lineHeight: 0.9,
               color: "var(--text)",
-              marginBottom: 20,
             }}
           >
-            Olá, sou rwque —<br />
-            <span style={{ color: "var(--text-3)" }}>desenvolvo para a web.</span>
-          </h1>
-          <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.75, maxWidth: 460 }}>
-            Faço sites e automações que funcionam. React, Next.js, Python.{" "}
-            Baseado no Brasil, disponível para qualquer lugar.
-          </p>
-          <div style={{ marginTop: 28, display: "flex", gap: 10, flexWrap: "wrap" }}>
+            Web.
+            <br />
+            <span style={{ color: "var(--text-3)" }}>Código.</span>
+            <br />
+            Resultado.
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7, duration: 0.6 }}
+            style={{
+              marginTop: 28,
+              fontSize: "clamp(13px, 1.5vw, 16px)",
+              color: "var(--text-3)",
+              letterSpacing: "0.02em",
+            }}
+          >
+            rwque — desenvolvedor web & automações · Brasil
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9, duration: 0.5, ease: E }}
+            style={{
+              marginTop: 36,
+              display: "flex",
+              justifyContent: "center",
+              gap: 12,
+              pointerEvents: "auto",
+            }}
+          >
             <a
               href="#contato"
               style={{
-                display: "inline-flex", alignItems: "center",
-                padding: "9px 20px",
+                padding: "10px 26px",
                 background: "var(--text)",
                 color: "var(--bg)",
-                borderRadius: 8,
-                fontSize: 13.5,
+                borderRadius: 99,
+                fontSize: 13,
                 fontWeight: 600,
                 letterSpacing: "-0.01em",
                 transition: "opacity 0.15s",
               }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.85")}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.8")}
               onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
             >
               Falar comigo
@@ -171,104 +338,127 @@ export default function Home() {
             <a
               href="#servicos"
               style={{
-                display: "inline-flex", alignItems: "center",
-                padding: "9px 20px",
-                background: "transparent",
-                color: "var(--text-2)",
-                border: "1px solid var(--border)",
-                borderRadius: 8,
-                fontSize: 13.5,
+                padding: "10px 26px",
+                border: "1px solid rgba(25,24,24,0.18)",
+                borderRadius: 99,
+                fontSize: 13,
                 fontWeight: 600,
                 letterSpacing: "-0.01em",
-                transition: "border-color 0.15s, color 0.15s",
+                color: "var(--text-2)",
+                transition: "border-color 0.15s",
               }}
-              onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "rgba(25,24,24,0.3)"; el.style.color = "var(--text)"; }}
-              onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--border)"; el.style.color = "var(--text-2)"; }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "rgba(25,24,24,0.4)")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "rgba(25,24,24,0.18)")}
             >
               Ver serviços
             </a>
-          </div>
+          </motion.div>
+        </div>
+
+        {/* scroll hint */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.4 }}
+          style={{
+            position: "absolute",
+            bottom: 28,
+            left: "50%",
+            transform: "translateX(-50%)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--text-3)", fontFamily: "var(--font-mono)" }}>
+            scroll
+          </span>
+          <motion.div
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            style={{ width: 1, height: 32, background: "linear-gradient(to bottom, var(--text-3), transparent)" }}
+          />
         </motion.div>
       </section>
 
-      <div style={S.divider} />
-
-      {/* ── SOBRE ────────────────────────── */}
-      <section id="sobre" style={{ ...S.wrap, paddingTop: 64, paddingBottom: 64, scrollMarginTop: 52 }}>
+      {/* ── SOBRE ── */}
+      <section
+        id="sobre"
+        style={{
+          borderTop: "1px solid var(--border)",
+          padding: "80px 32px",
+          maxWidth: 760,
+          margin: "0 auto",
+          scrollMarginTop: 52,
+        }}
+      >
         <Reveal>
-          <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 24 }}>
-            Sobre
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <p style={{ fontSize: 15.5, color: "var(--text-2)", lineHeight: 1.8 }}>
-              Trabalho com desenvolvimento web e automações há 3 anos. Construo desde landing pages simples até
-              sistemas completos com APIs e dashboards.
-            </p>
-            <p style={{ fontSize: 15.5, color: "var(--text-2)", lineHeight: 1.8 }}>
-              Também sou especialista em automações de browser — scraping, bots e fluxos automáticos com Playwright
-              e Python. Além disso, escrevo scripts em Lua/Roblox, Bash e Node.
-            </p>
-            <p style={{ fontSize: 15.5, color: "var(--text-2)", lineHeight: 1.8 }}>
-              Sem contrato de mensalidade. Orçamento por escopo, entrega real.
-            </p>
-          </div>
-        </Reveal>
+          <div style={{ display: "flex", gap: 48, alignItems: "flex-start", flexWrap: "wrap" }}>
+            <div style={{ flex: "0 0 120px" }}>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)" }}>
+                Sobre
+              </span>
+            </div>
+            <div style={{ flex: 1, minWidth: 260 }}>
+              <p style={{ fontSize: 17, fontWeight: 500, color: "var(--text)", lineHeight: 1.7, marginBottom: 16, letterSpacing: "-0.01em" }}>
+                Desenvolvo sites e automações há 3 anos. Trabalho com React, Next.js e Node.js — e também faço scraping e automações de browser com Playwright e Python.
+              </p>
+              <p style={{ fontSize: 15, color: "var(--text-2)", lineHeight: 1.8 }}>
+                Baseado no Brasil. Atendo em PT e EN. Sem mensalidade — orçamento por escopo, entrega real.
+              </p>
 
-        {/* Stack pills */}
-        <Reveal delay={0.1}>
-          <div style={{ marginTop: 36, display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {STACK.map((s, i) => (
-              <motion.span
-                key={s}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.02, duration: 0.25 }}
-                style={{
-                  fontSize: 12.5,
-                  fontFamily: "var(--font-mono)",
-                  color: "var(--text-3)",
-                  padding: "4px 11px",
-                  border: "1px solid var(--border)",
-                  borderRadius: 6,
-                  background: "var(--bg2)",
-                  cursor: "default",
-                  transition: "color 0.15s",
-                }}
-                whileHover={{ color: "var(--text)" }}
-              >
-                {s}
-              </motion.span>
-            ))}
+              {/* stats */}
+              <div style={{ marginTop: 36, display: "flex", gap: 32 }}>
+                {[["3+", "anos"], ["20+", "projetos"], ["PT/EN", "idiomas"]].map(([n, l]) => (
+                  <div key={l}>
+                    <div style={{ fontFamily: "var(--font-syne)", fontSize: 28, fontWeight: 800, letterSpacing: "-0.04em", color: "var(--text)" }}>{n}</div>
+                    <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2 }}>{l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </Reveal>
       </section>
 
-      <div style={S.divider} />
-
-      {/* ── SERVIÇOS ────────────────────────── */}
-      <section id="servicos" style={{ ...S.wrap, paddingTop: 64, paddingBottom: 64, scrollMarginTop: 52 }}>
+      {/* ── SERVIÇOS ── */}
+      <section
+        id="servicos"
+        style={{
+          borderTop: "1px solid var(--border)",
+          padding: "80px 32px",
+          maxWidth: 760,
+          margin: "0 auto",
+          scrollMarginTop: 52,
+        }}
+      >
         <Reveal>
-          <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 32 }}>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-3)", display: "block", marginBottom: 40 }}>
             Serviços
-          </p>
+          </span>
         </Reveal>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-          {SERVICES.map((svc, i) => (
-            <Reveal key={svc.title} delay={i * 0.08}>
-              <div
-                style={{
-                  paddingTop: i === 0 ? 0 : 28,
-                  paddingBottom: 28,
-                  borderBottom: "1px solid var(--border)",
-                }}
-              >
+        {SERVICES.map((svc, i) => (
+          <Reveal key={svc.n} delay={i * 0.08}>
+            <div
+              style={{
+                display: "flex",
+                gap: 24,
+                padding: "32px 0",
+                borderBottom: "1px solid var(--border)",
+                alignItems: "flex-start",
+              }}
+            >
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)", flexShrink: 0, paddingTop: 4 }}>
+                {svc.n}
+              </span>
+              <div>
                 <h3 style={{
                   fontFamily: "var(--font-syne)",
-                  fontSize: 18,
+                  fontSize: 22,
                   fontWeight: 700,
-                  letterSpacing: "-0.025em",
+                  letterSpacing: "-0.03em",
                   color: "var(--text)",
                   marginBottom: 10,
                 }}>
@@ -276,88 +466,87 @@ export default function Home() {
                 </h3>
                 <p style={{ fontSize: 14.5, color: "var(--text-3)", lineHeight: 1.75 }}>{svc.desc}</p>
               </div>
-            </Reveal>
-          ))}
-        </div>
+            </div>
+          </Reveal>
+        ))}
       </section>
 
-      <div style={S.divider} />
-
-      {/* ── CONTATO ────────────────────────── */}
-      <section id="contato" style={{ ...S.wrap, paddingTop: 64, paddingBottom: 96, scrollMarginTop: 52 }}>
+      {/* ── CONTATO ── */}
+      <section
+        id="contato"
+        style={{
+          borderTop: "1px solid var(--border)",
+          padding: "80px 32px 120px",
+          maxWidth: 760,
+          margin: "0 auto",
+          scrollMarginTop: 52,
+        }}
+      >
         <Reveal>
-          <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 24 }}>
-            Contato
-          </p>
           <h2
             style={{
               fontFamily: "var(--font-syne)",
-              fontSize: "clamp(28px, 5vw, 40px)",
+              fontSize: "clamp(36px, 6vw, 68px)",
               fontWeight: 800,
-              letterSpacing: "-0.04em",
-              lineHeight: 1.15,
+              letterSpacing: "-0.05em",
+              lineHeight: 0.95,
               color: "var(--text)",
-              marginBottom: 16,
+              marginBottom: 24,
             }}
           >
-            Tem um projeto?<br />Fala comigo.
+            Tem um projeto?
+            <br />
+            <span style={{ color: "var(--text-3)" }}>Fala comigo.</span>
           </h2>
-          <p style={{ fontSize: 15, color: "var(--text-3)", lineHeight: 1.75, marginBottom: 36 }}>
+          <p style={{ fontSize: 15, color: "var(--text-2)", lineHeight: 1.75, marginBottom: 40 }}>
             Respondo em menos de 24h. Sem burocracia, sem custo pra conversar.
           </p>
         </Reveal>
 
-        <Reveal delay={0.08}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 400 }}>
-            {/* Email button */}
+        <Reveal delay={0.1}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 380 }}>
             <a
               href="mailto:contato@rwque.lol"
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "14px 18px",
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "16px 20px",
                 background: "var(--text)",
                 color: "var(--bg)",
                 borderRadius: 10,
                 fontSize: 14,
                 fontWeight: 600,
-                letterSpacing: "-0.01em",
                 transition: "opacity 0.15s",
               }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.85")}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.8")}
               onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
             >
-              <span>contato@rwque.lol</span>
-              <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="2" y1="10" x2="10" y2="2" /><polyline points="4,2 10,2 10,8" />
-              </svg>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 13.5 }}>contato@rwque.lol</span>
+              <span>↗</span>
             </a>
 
-            {/* Copy button */}
             <motion.button
               onClick={copy}
               whileTap={{ scale: 0.98 }}
               style={{
-                padding: "13px 18px",
+                padding: "14px 20px",
                 border: "1px solid var(--border)",
                 borderRadius: 10,
-                fontSize: 13,
+                fontSize: 12.5,
                 fontFamily: "var(--font-mono)",
-                letterSpacing: "0.04em",
+                letterSpacing: "0.06em",
                 textTransform: "uppercase",
                 color: copied ? "var(--text)" : "var(--text-3)",
-                background: copied ? "var(--bg2)" : "transparent",
+                background: copied ? "rgba(25,24,24,0.05)" : "transparent",
                 transition: "color 0.15s, background 0.15s, border-color 0.15s",
               }}
-              onMouseEnter={(e) => { if (!copied) (e.currentTarget as HTMLElement).style.borderColor = "rgba(25,24,24,0.25)"; }}
+              onMouseEnter={(e) => { if (!copied) (e.currentTarget as HTMLElement).style.borderColor = "rgba(25,24,24,0.3)"; }}
               onMouseLeave={(e) => { if (!copied) (e.currentTarget as HTMLElement).style.borderColor = "var(--border)"; }}
             >
               <AnimatePresence mode="wait">
                 {copied ? (
                   <motion.span key="ok" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                     style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                     Copiado!
@@ -373,12 +562,29 @@ export default function Home() {
         </Reveal>
       </section>
 
-      {/* ── FOOTER ────────────────────────── */}
-      <div style={S.divider} />
-      <footer style={{ ...S.wrap, paddingTop: 20, paddingBottom: 32 }}>
-        <p style={{ fontSize: 12.5, color: "var(--text-3)", fontFamily: "var(--font-mono)" }}>
-          © 2026 rwque
-        </p>
+      {/* ── FOOTER ── */}
+      <footer
+        style={{
+          borderTop: "1px solid var(--border)",
+          padding: "20px 32px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          maxWidth: 760,
+          margin: "0 auto",
+        }}
+      >
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 11.5, color: "var(--text-3)" }}>© 2026 rwque</span>
+        <a
+          href="https://github.com/isKuyo"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ fontFamily: "var(--font-mono)", fontSize: 11.5, color: "var(--text-3)", transition: "color 0.15s" }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text)")}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text-3)")}
+        >
+          github.com/isKuyo ↗
+        </a>
       </footer>
     </>
   );

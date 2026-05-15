@@ -2,10 +2,9 @@
 
 :root {
   --bg: #efedea;
-  --bg2: #e8e5e1;
   --text: #191818;
-  --text-2: #3d3c3b;
-  --text-3: #7a7774;
+  --text-2: #4a4948;
+  --text-3: #8a8785;
   --border: rgba(25, 24, 24, 0.1);
 }
 
@@ -15,13 +14,12 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-jakarta, 'Plus Jakarta Sans', system-ui, sans-serif);
-  font-size: 16px;
-  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
-::selection { background: rgba(25,24,24,0.1); }
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::selection { background: rgba(25,24,24,0.12); }
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-thumb { background: var(--border); }
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; padding: 0; }
